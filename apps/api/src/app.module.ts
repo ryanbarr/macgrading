@@ -8,6 +8,7 @@ import { HttpExceptionFilter } from './common/http-exception.filter';
 import { AuthModule } from './auth/auth.module';
 import { GradeNamesModule } from './grade-names/grade-names.module';
 import { CardsModule } from './cards/cards.module';
+import { CertsModule } from './certs/certs.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { CardsModule } from './cards/cards.module';
     AuthModule,
     GradeNamesModule,
     CardsModule,
+    CertsModule,
   ],
   controllers: [AppController],
   providers: [
