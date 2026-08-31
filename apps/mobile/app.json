@@ -34,7 +34,14 @@
           "imageWidth": 76
         }
       ],
-      "@react-native-google-signin/google-signin"
+      "@react-native-google-signin/google-signin",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "MAC Grading attaches slab photos to certifications.",
+          "cameraPermission": "MAC Grading photographs sealed slabs for certifications."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
