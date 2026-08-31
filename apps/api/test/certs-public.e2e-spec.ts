@@ -110,4 +110,63 @@ describe('public cert endpoints', () => {
     await request(app.getHttpServer()).get('/certs?page=0').expect(400);
     await request(app.getHttpServer()).get('/certs?pageSize=500').expect(400);
   });
+
+  const uploadPhoto = async (certNumber: string): Promise<string> => {
+    const presign = await request(app.getHttpServer())
+      .post(`/certs/${certNumber}/photos/presign`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ contentType: 'image/jpeg' })
+      .expect(201);
+    const { uploadUrl, objectKey } = presign.body;
+    const put = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'image/jpeg' },
+      body: Buffer.from([0xff, 0xd8, 0xff, 0xdb]),
+    });
+    expect(put.ok).toBe(true);
+    return objectKey as string;
+  };
+
+  it('shows a graded cert with photos, sorted, to an unauthenticated caller', async () => {
+    const certNumber = await mintOne('cbt-0001');
+    await request(app.getHttpServer())
+      .patch(`/certs/${certNumber}/grade`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ grade: '10' })
+      .expect(200);
+
+    const objectKeyA = await uploadPhoto(certNumber);
+    const objectKeyB = await uploadPhoto(certNumber);
+    await request(app.getHttpServer())
+      .post(`/certs/${certNumber}/photos`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ objectKey: objectKeyA, sortOrder: 1 })
+      .expect(201);
+    await request(app.getHttpServer())
+      .post(`/certs/${certNumber}/photos`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ objectKey: objectKeyB, sortOrder: 0 })
+      .expect(201);
+
+    const res = await request(app.getHttpServer())
+      .get(`/certs/${certNumber}`)
+      .expect(200);
+
+    expect(res.body).toMatchObject({
+      status: 'GRADED',
+      gradeName: 'Mac Daddy',
+    });
+    expect(res.body).not.toHaveProperty('id');
+    expect(res.body.photos).toHaveLength(2);
+    expect(res.body.photos.map((p: { sortOrder: number }) => p.sortOrder)).toEqual([
+      0, 1,
+    ]);
+
+    const publicBase = `${process.env.S3_ENDPOINT!.replace(/\/$/, '')}/${process.env.S3_BUCKET}`;
+    const [first, second] = res.body.photos as Array<{ url: string }>;
+    expect(first.url.startsWith(publicBase)).toBe(true);
+    expect(first.url).toContain(objectKeyB);
+    expect(second.url.startsWith(publicBase)).toBe(true);
+    expect(second.url).toContain(objectKeyA);
+  });
 });

@@ -1,13 +1,8 @@
 import { IsIn } from 'class-validator';
-
-export const ALLOWED_PHOTO_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/heic',
-] as const;
+import { ALLOWED_PHOTO_TYPES } from '@macgrading/shared';
+import type { AllowedPhotoType } from '@macgrading/shared';
 
 export class PresignPhotoDto {
   @IsIn(ALLOWED_PHOTO_TYPES)
-  contentType!: (typeof ALLOWED_PHOTO_TYPES)[number];
+  contentType!: AllowedPhotoType;
 }

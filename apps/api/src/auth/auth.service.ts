@@ -1,17 +1,12 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
+import { AuthUserDto } from '@macgrading/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   GOOGLE_TOKEN_VERIFIER,
   type GoogleTokenVerifier,
 } from './google-token-verifier';
-
-export interface AuthUserDto {
-  email: string;
-  name: string;
-  role: string;
-}
 
 export function toAuthUserDto(user: User): AuthUserDto {
   return { email: user.email, name: user.name, role: user.role };

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CERT_STATUSES, CERT_COUNTER_TYPES, ROLES } from './domain';
-import type { CertDto, CertListDto } from './domain';
+import type { CertDto, CertListDto, LoginResponseDto } from './domain';
 
 describe('domain constants', () => {
   it('enumerates the spec values', () => {
@@ -36,5 +36,16 @@ describe('CertListDto', () => {
   it('wraps items with pagination', () => {
     const list: CertListDto = { items: [], page: 1, pageSize: 20, total: 0 };
     expect(list.total).toBe(0);
+  });
+});
+
+describe('LoginResponseDto', () => {
+  it('type-checks a literal with an AuthUserDto role', () => {
+    // Type-level check: this must compile — user.role narrows to the shared Role union.
+    const response: LoginResponseDto = {
+      accessToken: 'jwt.token.here',
+      user: { email: 'team@macgrading.com', name: 'Team', role: 'TEAM_MEMBER' },
+    };
+    expect(response.user.role).toBe('TEAM_MEMBER');
   });
 });

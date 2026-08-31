@@ -140,7 +140,7 @@ export class CertsService {
       this.prisma.cert.count({ where }),
       this.prisma.cert.findMany({
         where,
-        orderBy: { createdAt: 'desc' },
+        orderBy: [{ createdAt: 'desc' }, { certNumber: 'desc' }],
         skip: (query.page - 1) * query.pageSize,
         take: query.pageSize,
         include: { photos: true },

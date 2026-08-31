@@ -64,7 +64,7 @@ model CertPhoto {
   id          String   @id @default(uuid())
   certId      String
   cert        Cert     @relation(fields: [certId], references: [id])
-  objectKey   String
+  objectKey   String   @unique
   contentType String
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())

@@ -135,6 +135,21 @@ describe('cert photos', () => {
       .expect(400);
   });
 
+  it('refuses to register the same objectKey twice', async () => {
+    const certNumber = await mintOne();
+    const objectKey = await uploadPhoto(certNumber);
+    await request(app.getHttpServer())
+      .post(`/certs/${certNumber}/photos`)
+      .set(authed())
+      .send({ objectKey })
+      .expect(201);
+    const res = await request(app.getHttpServer())
+      .post(`/certs/${certNumber}/photos`)
+      .set(authed())
+      .send({ objectKey });
+    expect(res.status).not.toBe(201);
+  });
+
   it('deletes a photo', async () => {
     const certNumber = await mintOne();
     const objectKey = await uploadPhoto(certNumber);

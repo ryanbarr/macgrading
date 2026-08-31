@@ -57,3 +57,27 @@ export interface CertListDto {
   pageSize: number;
   total: number;
 }
+
+export interface AuthUserDto {
+  email: string;
+  name: string;
+  role: Role;
+}
+
+export interface LoginResponseDto {
+  accessToken: string;
+  user: AuthUserDto;
+}
+
+export const ALLOWED_PHOTO_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/heic',
+] as const;
+export type AllowedPhotoType = (typeof ALLOWED_PHOTO_TYPES)[number];
+
+export interface PresignResponseDto {
+  uploadUrl: string;
+  objectKey: string;
+}
