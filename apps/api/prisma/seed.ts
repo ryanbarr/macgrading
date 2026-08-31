@@ -22,6 +22,18 @@ async function main() {
       create: { gradeValue: new Prisma.Decimal(gradeValue), name },
     });
   }
+
+  const adminEmails = (process.env.ADMIN_EMAILS ?? '')
+    .split(',')
+    .map((email) => email.trim())
+    .filter(Boolean);
+  for (const email of adminEmails) {
+    await prisma.user.upsert({
+      where: { email },
+      update: { role: 'ADMIN', isActive: true },
+      create: { email, name: email, role: 'ADMIN' },
+    });
+  }
 }
 
 main()
