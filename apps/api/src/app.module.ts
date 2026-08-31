@@ -6,12 +6,16 @@ import { PrismaModule } from './prisma/prisma.module';
 import { validateEnv } from './config/env.validation';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import { AuthModule } from './auth/auth.module';
+import { GradeNamesModule } from './grade-names/grade-names.module';
+import { CardsModule } from './cards/cards.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
     PrismaModule,
     AuthModule,
+    GradeNamesModule,
+    CardsModule,
   ],
   controllers: [AppController],
   providers: [
