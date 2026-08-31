@@ -24,4 +24,12 @@ describe('GET /health', () => {
       .expect(200)
       .expect({ status: 'ok', sharedLinked: true });
   });
+
+  it('unknown routes get the standard error shape (filter active)', () => {
+    return request(app.getHttpServer()).get('/nope').expect(404).expect({
+      statusCode: 404,
+      message: 'Cannot GET /nope',
+      error: 'Not Found',
+    });
+  });
 });
