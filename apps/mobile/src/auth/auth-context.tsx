@@ -21,6 +21,10 @@ interface AuthState {
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
+export function shouldClearStoredToken(error: unknown): boolean {
+  return error instanceof ApiError && error.status === 401;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<AuthUserDto | null>(null);
@@ -41,8 +45,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(me);
         }
       } catch (error) {
-        if (error instanceof ApiError && error.status === 401) {
+        if (shouldClearStoredToken(error)) {
           await tokenStorage.clear();
+        } else if (!cancelled) {
+          setToken(stored);
         }
       } finally {
         if (!cancelled) setIsLoading(false);
