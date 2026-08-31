@@ -42,7 +42,8 @@ services:
     entrypoint: >
       /bin/sh -c "
       mc alias set local http://minio:9000 macgrading macgrading &&
-      mc mb --ignore-existing local/slab-photos
+      mc mb --ignore-existing local/slab-photos &&
+      mc anonymous set download local/slab-photos
       "
 
 volumes:

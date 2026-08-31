@@ -27,6 +27,8 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1122.0",
+    "@aws-sdk/s3-request-presigner": "^3.1122.0",
     "@macgrading/shared": "workspace:*",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
