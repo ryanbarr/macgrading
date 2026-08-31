@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Body,
+  ConflictException,
   Controller,
   Delete,
   HttpCode,
@@ -9,6 +10,8 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { PresignResponseDto } from '@macgrading/shared';
+import { Prisma } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { CheckPolicies } from '../auth/check-policies.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -41,7 +44,7 @@ export class PhotosController {
   async presign(
     @Param('certNumber') certNumber: string,
     @Body() dto: PresignPhotoDto,
-  ) {
+  ): Promise<PresignResponseDto> {
     const cert = await this.findCert(certNumber);
     const objectKey = `certs/${cert.id}/${randomUUID()}`;
     const uploadUrl = await this.storage.presignPut(objectKey, dto.contentType);
@@ -62,14 +65,25 @@ export class PhotosController {
     if (contentType === null) {
       throw new BadRequestException('No uploaded object at that key');
     }
-    const photo = await this.prisma.certPhoto.create({
-      data: {
-        certId: cert.id,
-        objectKey: dto.objectKey,
-        contentType,
-        sortOrder: dto.sortOrder ?? 0,
-      },
-    });
+    let photo;
+    try {
+      photo = await this.prisma.certPhoto.create({
+        data: {
+          certId: cert.id,
+          objectKey: dto.objectKey,
+          contentType,
+          sortOrder: dto.sortOrder ?? 0,
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('That upload is already registered');
+      }
+      throw error;
+    }
     return {
       id: photo.id,
       url: `${this.certs.publicUrlBase()}/${photo.objectKey}`,

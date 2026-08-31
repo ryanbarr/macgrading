@@ -143,11 +143,12 @@ describe('cert photos', () => {
       .set(authed())
       .send({ objectKey })
       .expect(201);
-    const res = await request(app.getHttpServer())
+    const duplicate = await request(app.getHttpServer())
       .post(`/certs/${certNumber}/photos`)
       .set(authed())
-      .send({ objectKey });
-    expect(res.status).not.toBe(201);
+      .send({ objectKey })
+      .expect(409);
+    expect(duplicate.body.message).toContain('already registered');
   });
 
   it('deletes a photo', async () => {
