@@ -16,8 +16,8 @@ Mostly Accurate Certifications — meme card grading.
     pnpm --filter @macgrading/api db:seed
     pnpm build && pnpm test
 
-API e2e tests (need the docker stack running):
+API e2e tests (need the docker stack running; they use a separate `_test` database):
 
-    pnpm --filter @macgrading/api test:e2e
+    pnpm test:e2e
 
 Spec: `docs/superpowers/specs/2026-08-31-mac-grading-design.md`
