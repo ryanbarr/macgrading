@@ -6,7 +6,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "vitest run",
+    "test": "tsc --noEmit -p tsconfig.test.json && vitest run",
     "test:watch": "vitest"
   },
   "devDependencies": {
