@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CertCounterType } from '@prisma/client';
+import { Prisma, CertCounterType } from '@prisma/client';
 import { CertDto, formatCertNumber } from '@macgrading/shared';
 import { CardCatalogService } from '../cards/card-catalog.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -67,5 +67,31 @@ export class CertsService {
     });
 
     return toCertDto(cert, this.publicUrlBase());
+  }
+
+  async setGrade(certNumber: string, grade: string, userId: string): Promise<CertDto> {
+    const cert = await this.prisma.cert.findUnique({ where: { certNumber } });
+    if (!cert) {
+      throw new NotFoundException(`No cert ${certNumber}`);
+    }
+    if (cert.status === 'GRADED') {
+      throw new ConflictException('Cert is already graded; grades are frozen');
+    }
+    const gradeValue = new Prisma.Decimal(grade);
+    const gradeName = await this.prisma.gradeName.findUnique({
+      where: { gradeValue },
+    });
+    const updated = await this.prisma.cert.update({
+      where: { certNumber },
+      data: {
+        status: 'GRADED',
+        grade: gradeValue,
+        gradeName: gradeName?.name ?? null,
+        gradedById: userId,
+        gradedAt: new Date(),
+      },
+      include: { photos: true },
+    });
+    return toCertDto(updated, this.publicUrlBase());
   }
 }
