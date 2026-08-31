@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  TEAM_MEMBER
+}
+
+enum CertStatus {
+  PENDING_GRADE
+  GRADED
+}
+
+enum CertCounterType {
+  STANDARD
+  PROTOTYPE
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  name        String
+  googleId    String?  @unique
+  role        Role     @default(TEAM_MEMBER)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  gradedCerts Cert[]
+}
+
+model Cert {
+  id              String     @id @default(uuid())
+  certNumber      String     @unique
+  isPrototype     Boolean
+  status          CertStatus @default(PENDING_GRADE)
+
+  // Card snapshot, copied from CardboardTens at mint time (spec: certs are
+  // append-mostly ledger records; cardboardTensId is provenance only).
+  cardboardTensId String
+  cardName        String
+  setName         String
+  cardNumber      String?
+  releaseYear     Int?
+  category        String?
+  cardImageUrl    String?
+
+  grade      Decimal?  @db.Decimal(4, 1)
+  gradeName  String?
+  gradedById String?
+  gradedBy   User?     @relation(fields: [gradedById], references: [id])
+  gradedAt   DateTime?
+  createdAt  DateTime  @default(now())
+  photos     CertPhoto[]
+
+  @@index([createdAt])
+}
+
+model CertPhoto {
+  id          String   @id @default(uuid())
+  certId      String
+  cert        Cert     @relation(fields: [certId], references: [id])
+  objectKey   String
+  contentType String
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([certId])
+}
+
+model CertCounter {
+  type      CertCounterType @id
+  nextValue Int             @default(1)
+}
+
+model GradeName {
+  gradeValue Decimal @id @db.Decimal(4, 1)
+  name       String
+}
