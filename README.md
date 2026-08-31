@@ -10,7 +10,14 @@ Mostly Accurate Certifications — meme card grading.
 ## Setup
 
     pnpm install
-    docker compose up -d
+    docker compose up -d --wait
+    cp .env.example apps/api/.env
+    pnpm --filter @macgrading/api db:migrate
+    pnpm --filter @macgrading/api db:seed
     pnpm build && pnpm test
+
+API e2e tests (need the docker stack running):
+
+    pnpm --filter @macgrading/api test:e2e
 
 Spec: `docs/superpowers/specs/2026-08-31-mac-grading-design.md`

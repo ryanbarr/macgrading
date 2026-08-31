@@ -7,3 +7,4 @@ coverage/
 .env
 *.tsbuildinfo
 .DS_Store
+docker-compose.override.yml
