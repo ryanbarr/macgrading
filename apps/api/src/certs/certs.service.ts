@@ -1,7 +1,16 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Prisma, CertCounterType } from '@prisma/client';
-import { CertDto, formatCertNumber } from '@macgrading/shared';
+import {
+  CertDto,
+  CertListDto,
+  formatCertNumber,
+  isValidCertNumber,
+} from '@macgrading/shared';
 import { CardCatalogService } from '../cards/card-catalog.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { toCertDto } from './cert.serializer';
@@ -69,7 +78,11 @@ export class CertsService {
     return toCertDto(cert, this.publicUrlBase());
   }
 
-  async setGrade(certNumber: string, grade: string, userId: string): Promise<CertDto> {
+  async setGrade(
+    certNumber: string,
+    grade: string,
+    userId: string,
+  ): Promise<CertDto> {
     const cert = await this.prisma.cert.findUnique({ where: { certNumber } });
     if (!cert) {
       throw new NotFoundException(`No cert ${certNumber}`);
@@ -93,5 +106,52 @@ export class CertsService {
       include: { photos: true },
     });
     return toCertDto(updated, this.publicUrlBase());
+  }
+
+  async getByNumber(certNumber: string): Promise<CertDto> {
+    if (!isValidCertNumber(certNumber)) {
+      throw new NotFoundException(`No cert ${certNumber}`);
+    }
+    const cert = await this.prisma.cert.findUnique({
+      where: { certNumber },
+      include: { photos: true },
+    });
+    if (!cert) {
+      throw new NotFoundException(`No cert ${certNumber}`);
+    }
+    return toCertDto(cert, this.publicUrlBase());
+  }
+
+  async list(query: {
+    q?: string;
+    page: number;
+    pageSize: number;
+  }): Promise<CertListDto> {
+    const where: Prisma.CertWhereInput = query.q
+      ? {
+          OR: [
+            { certNumber: query.q },
+            { cardName: { contains: query.q, mode: 'insensitive' } },
+            { setName: { contains: query.q, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+    const [total, rows] = await this.prisma.$transaction([
+      this.prisma.cert.count({ where }),
+      this.prisma.cert.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (query.page - 1) * query.pageSize,
+        take: query.pageSize,
+        include: { photos: true },
+      }),
+    ]);
+    const base = this.publicUrlBase();
+    return {
+      items: rows.map((row) => toCertDto(row, base)),
+      page: query.page,
+      pageSize: query.pageSize,
+      total,
+    };
   }
 }

@@ -1,4 +1,13 @@
-import { Body, Controller, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import type { User } from '@prisma/client';
 import { CheckPolicies } from '../auth/check-policies.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
@@ -6,6 +15,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PoliciesGuard } from '../auth/policies.guard';
 import { CertsService } from './certs.service';
 import { CreateCertDto } from './dto/create-cert.dto';
+import { ListCertsQuery } from './dto/list-certs.query';
 import { SetGradeDto } from './dto/set-grade.dto';
 
 @Controller('certs')
@@ -28,5 +38,15 @@ export class CertsController {
     @CurrentUser() user: User,
   ) {
     return this.certs.setGrade(certNumber, dto.grade, user.id);
+  }
+
+  @Get()
+  list(@Query() query: ListCertsQuery) {
+    return this.certs.list(query);
+  }
+
+  @Get(':certNumber')
+  getByNumber(@Param('certNumber') certNumber: string) {
+    return this.certs.getByNumber(certNumber);
   }
 }

@@ -50,3 +50,10 @@ export interface GradeNameDto {
   gradeValue: string;
   name: string;
 }
+
+export interface CertListDto {
+  items: CertDto[];
+  page: number;
+  pageSize: number;
+  total: number;
+}

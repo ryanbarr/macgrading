@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CERT_STATUSES, CERT_COUNTER_TYPES, ROLES } from './domain';
-import type { CertDto } from './domain';
+import type { CertDto, CertListDto } from './domain';
 
 describe('domain constants', () => {
   it('enumerates the spec values', () => {
@@ -29,5 +29,12 @@ describe('domain constants', () => {
       photos: [],
     };
     expect(cert.grade).toBe('10');
+  });
+});
+
+describe('CertListDto', () => {
+  it('wraps items with pagination', () => {
+    const list: CertListDto = { items: [], page: 1, pageSize: 20, total: 0 };
+    expect(list.total).toBe(0);
   });
 });
