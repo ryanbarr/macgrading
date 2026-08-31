@@ -2,7 +2,9 @@ services:
   postgres:
     image: postgres:17-alpine
     ports:
-      - "127.0.0.1:5432:5432"
+      # Host port is overridable for machines where 5432 is already taken
+      # (set POSTGRES_HOST_PORT in a gitignored root .env; compose reads it).
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5432}:5432"
     environment:
       POSTGRES_USER: macgrading
       POSTGRES_PASSWORD: macgrading
