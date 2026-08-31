@@ -16,6 +16,13 @@ Mostly Accurate Certifications — meme card grading.
     pnpm --filter @macgrading/api db:seed
     pnpm build && pnpm test
 
+Mobile app (iOS simulator; needs Xcode):
+
+    pnpm --filter @macgrading/mobile ios
+
+Dev sign-in: set AUTH_DEV_MODE=true in apps/api/.env and EXPO_PUBLIC_DEV_AUTH=true
+when starting expo, then sign in with a seeded team email.
+
 API e2e tests (need the docker stack running; they use a separate `_test` database):
 
     pnpm test:e2e
