@@ -31,8 +31,8 @@ export class GoogleAuthTokenVerifier implements GoogleTokenVerifier {
         audience: this.config.getOrThrow<string>('GOOGLE_CLIENT_ID'),
       });
       const payload = ticket.getPayload();
-      if (!payload?.email || !payload.sub) {
-        throw new Error('missing email or subject');
+      if (!payload?.email || !payload.sub || payload.email_verified !== true) {
+        throw new Error('missing or unverified email');
       }
       return {
         email: payload.email,
