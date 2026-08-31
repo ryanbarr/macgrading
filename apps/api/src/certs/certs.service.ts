@@ -39,6 +39,11 @@ export class CertsService {
         WHERE "type" = CAST(${counterType} AS "CertCounterType")
         FOR UPDATE
       `;
+      if (rows.length === 0) {
+        throw new Error(
+          `Cert counter row missing for type ${counterType} — run the database seed`,
+        );
+      }
       const sequenceValue = rows[0].nextValue;
       const certNumber = formatCertNumber(sequenceValue, input.isPrototype);
       await tx.certCounter.update({

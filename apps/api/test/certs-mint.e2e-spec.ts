@@ -1,4 +1,4 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PrismaClient } from '@prisma/client';
 import request from 'supertest';
@@ -123,5 +123,26 @@ describe('cert minting', () => {
     expect([...numbers].sort()).toEqual(
       Array.from({ length: 10 }, (_, i) => String(i + 1).padStart(9, '0')),
     );
+  });
+
+  it('a failed mint consumes no number (overflow rolls back cleanly)', async () => {
+    const errorSpy = jest
+      .spyOn(Logger.prototype, 'error')
+      .mockImplementation(() => undefined);
+    try {
+      await prisma.certCounter.update({
+        where: { type: 'STANDARD' },
+        data: { nextValue: 1_000_000_000 },
+      });
+      await mint({ cardboardTensId: 'cbt-0001', isPrototype: false }).expect(
+        500,
+      );
+      const counter = await prisma.certCounter.findUniqueOrThrow({
+        where: { type: 'STANDARD' },
+      });
+      expect(counter.nextValue).toBe(1_000_000_000);
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 });
