@@ -7,7 +7,7 @@ export async function getCert(certNumber: string): Promise<CertDto | null> {
   // `next.revalidate` is Next.js's fetch extension; vitest compiles this file
   // without Next's type augmentation, so we cast. The property is compile-time
   // invisible but reaches fetch at runtime unchanged.
-  const response = await fetch(`${API_URL}/certs/${certNumber}`, {
+  const response = await fetch(`${API_URL}/certs/${encodeURIComponent(certNumber)}`, {
     next: { revalidate: REVALIDATE_SECONDS },
   } as RequestInit);
   if (response.status === 404) {

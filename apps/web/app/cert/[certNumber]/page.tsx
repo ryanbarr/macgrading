@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { isValidCertNumber } from '@macgrading/shared';
 import { getCert } from '@/lib/api';
 
 interface Props {
@@ -8,6 +9,9 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { certNumber } = await params;
+  if (!isValidCertNumber(certNumber)) {
+    return { title: 'Certification lookup | MAC Grading' };
+  }
   const cert = await getCert(certNumber).catch(() => null);
   if (!cert) {
     return { title: 'Certification lookup | MAC Grading' };
@@ -29,6 +33,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CertPage({ params }: Props) {
   const { certNumber } = await params;
+  if (!isValidCertNumber(certNumber)) {
+    notFound();
+  }
   const cert = await getCert(certNumber);
   if (!cert) {
     notFound();
