@@ -20,8 +20,8 @@ Mobile app (iOS simulator; needs Xcode):
 
     pnpm --filter @macgrading/mobile ios
 
-Dev sign-in: set AUTH_DEV_MODE=true in apps/api/.env and EXPO_PUBLIC_DEV_AUTH=true
-when starting expo, then sign in with a seeded team email.
+Dev sign-in: set AUTH_DEV_MODE=true and NODE_ENV=development in apps/api/.env and
+EXPO_PUBLIC_DEV_AUTH=true when starting expo, then sign in with a seeded team email.
 
 Web app (public site on http://localhost:3000; needs the API running):
 

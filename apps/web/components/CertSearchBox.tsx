@@ -11,6 +11,8 @@ export function CertSearchBox({ autoFocus = false }: { autoFocus?: boolean }) {
   return (
     <form
       className="flex w-full max-w-xl gap-2"
+      action="/catalog"
+      method="get"
       onSubmit={(event) => {
         event.preventDefault();
         router.push(searchDestination(value));
@@ -19,6 +21,7 @@ export function CertSearchBox({ autoFocus = false }: { autoFocus?: boolean }) {
       <input
         className="flex-1 rounded-lg border border-neutral-300 bg-white px-4 py-3 text-lg text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-500 focus:outline-none"
         placeholder="Enter a cert number or card name…"
+        name="q"
         value={value}
         onChange={(event) => setValue(event.target.value)}
         autoFocus={autoFocus}
