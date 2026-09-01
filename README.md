@@ -23,6 +23,10 @@ Mobile app (iOS simulator; needs Xcode):
 Dev sign-in: set AUTH_DEV_MODE=true in apps/api/.env and EXPO_PUBLIC_DEV_AUTH=true
 when starting expo, then sign in with a seeded team email.
 
+Web app (public site on http://localhost:3000; needs the API running):
+
+    pnpm --filter @macgrading/web dev
+
 API e2e tests (need the docker stack running; they use a separate `_test` database):
 
     pnpm test:e2e
