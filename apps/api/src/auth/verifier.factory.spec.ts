@@ -43,4 +43,13 @@ describe('createTokenVerifier', () => {
       ),
     ).toThrow('AUTH_DEV_MODE must not be enabled in production');
   });
+
+  it('throws when AUTH_DEV_MODE=true and NODE_ENV is unset', () => {
+    delete process.env.NODE_ENV;
+    expect(() =>
+      createTokenVerifier(
+        fakeConfig({ AUTH_DEV_MODE: 'true', GOOGLE_CLIENT_ID: 'client-id' }),
+      ),
+    ).toThrow('AUTH_DEV_MODE must not be enabled in production');
+  });
 });
