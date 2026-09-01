@@ -1,6 +1,7 @@
 import { Module, ValidationPipe } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER, APP_PIPE } from '@nestjs/core';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { validateEnv } from './config/env.validation';
@@ -13,6 +14,17 @@ import { CertsModule } from './certs/certs.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        throttlers: [
+          {
+            ttl: Number(config.get('THROTTLE_TTL_SECONDS') ?? 60) * 1000,
+            limit: Number(config.get('THROTTLE_LIMIT') ?? 120),
+          },
+        ],
+      }),
+    }),
     PrismaModule,
     AuthModule,
     GradeNamesModule,
@@ -26,6 +38,7 @@ import { CertsModule } from './certs/certs.module';
       useValue: new ValidationPipe({ whitelist: true, transform: true }),
     },
     { provide: APP_FILTER, useClass: HttpExceptionFilter },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
 export class AppModule {}

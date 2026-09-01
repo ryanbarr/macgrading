@@ -3,11 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { DevGoogleTokenVerifier } from './dev-token-verifier';
-import {
-  GOOGLE_TOKEN_VERIFIER,
-  GoogleAuthTokenVerifier,
-} from './google-token-verifier';
+import { GOOGLE_TOKEN_VERIFIER } from './google-token-verifier';
+import { createTokenVerifier } from './verifier.factory';
 
 @Module({
   imports: [
@@ -26,10 +23,7 @@ import {
     {
       provide: GOOGLE_TOKEN_VERIFIER,
       inject: [ConfigService],
-      useFactory: (config: ConfigService) =>
-        config.get<string>('AUTH_DEV_MODE') === 'true'
-          ? new DevGoogleTokenVerifier()
-          : new GoogleAuthTokenVerifier(config),
+      useFactory: createTokenVerifier,
     },
   ],
 })

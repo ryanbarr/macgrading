@@ -18,6 +18,9 @@ export class EnvironmentVariables {
   @IsOptional() @IsString() S3_PUBLIC_URL?: string;
   @IsOptional() @IsString() ADMIN_EMAILS?: string;
   @IsOptional() @IsString() AUTH_DEV_MODE?: string;
+  @IsOptional() @IsString() CORS_ORIGIN?: string;
+  @IsOptional() @IsString() THROTTLE_TTL_SECONDS?: string;
+  @IsOptional() @IsString() THROTTLE_LIMIT?: string;
 }
 
 export function validateEnv(
