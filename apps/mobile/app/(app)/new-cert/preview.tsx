@@ -1,5 +1,5 @@
 import type { CardSummary } from '@macgrading/shared';
-import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { Redirect, router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { useMintCert } from '../../../src/api/queries';
@@ -8,7 +8,15 @@ import { theme } from '../../../src/theme';
 
 export default function Preview() {
   const params = useLocalSearchParams<{ card: string }>();
-  const card = JSON.parse(params.card) as CardSummary;
+  let card: CardSummary | null = null;
+  try {
+    card = params.card ? (JSON.parse(params.card) as CardSummary) : null;
+  } catch {
+    card = null;
+  }
+  if (!card) {
+    return <Redirect href="/new-cert" />;
+  }
   const [isPrototype, setIsPrototype] = useState(false);
   const mint = useMintCert();
 

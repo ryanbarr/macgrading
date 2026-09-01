@@ -55,7 +55,7 @@ export default function SignIn() {
 
       {DEV_AUTH && (
         <View style={styles.devBox}>
-          <Text style={styles.devLabel}>Dev sign-in (AUTH_DEV_MODE)</Text>
+          <Text style={styles.devLabel}>Dev sign-in (needs EXPO_PUBLIC_DEV_AUTH here + AUTH_DEV_MODE on the API)</Text>
           <TextInput
             style={styles.input}
             placeholder="team@macgrading.com"
