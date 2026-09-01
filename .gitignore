@@ -8,3 +8,5 @@ coverage/
 *.tsbuildinfo
 .DS_Store
 docker-compose.override.yml
+apps/web/AGENTS.md
+apps/web/CLAUDE.md
