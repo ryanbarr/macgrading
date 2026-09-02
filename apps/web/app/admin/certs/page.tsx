@@ -12,13 +12,10 @@ export default function AdminCerts() {
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const params = new URLSearchParams({
-      pageSize: '50',
-      includeVoided: 'true',
-    });
+    const params = new URLSearchParams({ pageSize: '50' });
     if (q.trim()) params.set('q', q.trim());
     if (showTest) params.set('test', 'true');
-    const list = await adminFetch<CertListDto>(`/certs?${params.toString()}`);
+    const list = await adminFetch<CertListDto>(`/certs/admin/search?${params.toString()}`);
     setCerts(list.items);
   }, [q, showTest]);
 

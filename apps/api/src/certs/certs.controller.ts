@@ -62,6 +62,15 @@ export class CertsController {
     return this.certs.void(certNumber, dto.reason, user.id);
   }
 
+  /** Admin listing: voided certs included. Gated by the void ability so
+   *  "can see voided in lists" and "can void" travel together. */
+  @Get('admin/search')
+  @UseGuards(JwtAuthGuard, PoliciesGuard)
+  @CheckPolicies((ability) => ability.can('void', 'Cert'))
+  adminList(@Query() query: ListCertsQuery) {
+    return this.certs.list({ ...query, includeVoided: true });
+  }
+
   @Get()
   list(@Query() query: ListCertsQuery) {
     return this.certs.list(query);

@@ -89,10 +89,21 @@ describe('void + admin surfaces', () => {
       // resolvable directly.
       const publicList = await request(app.getHttpServer()).get('/certs').expect(200);
       expect(publicList.body.total).toBe(0);
-      const adminList = await request(app.getHttpServer())
+      // The public endpoint no longer accepts a voided toggle at all…
+      await request(app.getHttpServer())
         .get('/certs?includeVoided=true')
+        .expect(400);
+      // …the admin route lists voided, gated by the void ability.
+      const adminList = await request(app.getHttpServer())
+        .get('/certs/admin/search')
+        .set(as(adminToken))
         .expect(200);
       expect(adminList.body.total).toBe(1);
+      await request(app.getHttpServer())
+        .get('/certs/admin/search')
+        .set(as(teamToken))
+        .expect(403);
+      await request(app.getHttpServer()).get('/certs/admin/search').expect(401);
       const direct = await request(app.getHttpServer())
         .get(`/certs/${certNumber}`)
         .expect(200);
