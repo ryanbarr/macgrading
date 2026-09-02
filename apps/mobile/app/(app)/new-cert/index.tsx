@@ -59,7 +59,9 @@ export default function CardSearch() {
                 {item.releaseYear ? ` · ${item.releaseYear}` : ''}
               </Text>
               {item.variants.length > 0 && (
-                <Text style={styles.variants}>{item.variants.join(' · ')}</Text>
+                <Text style={styles.variants} numberOfLines={1}>
+                  {item.variants.join(' · ')}
+                </Text>
               )}
             </View>
           </Pressable>

@@ -129,7 +129,11 @@ GET    /auth/me                            current user + role
 GET    /cards/search?q=                    CardCatalogService (stub) results
 GET    /grade-names                        configured grade names
 
-POST   /certs                              { cardboardTensId, isPrototype, grade? } →
+POST   /certs                              { cardboardTensId, isPrototype, isTest?,
+                                             variant?, grade? } →
+                                           variant is REQUIRED (and validated)
+                                           when the card lists variants; the
+                                           snapshot stores only the chosen one
                                            snapshot + mint in one transaction;
                                            with grade: mints straight to GRADED
                                            (grade + name frozen atomically)

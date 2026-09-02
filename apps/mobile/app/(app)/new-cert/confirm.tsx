@@ -29,7 +29,7 @@ function DetailRow({ label, value }: { label: string; value: string | null }) {
 
 /** Final double check — card AND label — before the irreversible mint. */
 export default function ConfirmMint() {
-  const params = useLocalSearchParams<{ card: string; grade: string }>();
+  const params = useLocalSearchParams<{ card: string; grade: string; variant?: string }>();
   const [isPrototype, setIsPrototype] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
   const { isTestMode } = useMode();
@@ -67,6 +67,7 @@ export default function ConfirmMint() {
                 cardboardTensId: card.cardboardTensId,
                 isPrototype,
                 isTest: isTestMode,
+                ...(params.variant ? { variant: params.variant } : {}),
                 grade,
               },
               {
@@ -121,10 +122,7 @@ export default function ConfirmMint() {
             label="Year"
             value={card.releaseYear ? String(card.releaseYear) : null}
           />
-          <DetailRow
-            label="Variants"
-            value={card.variants.length > 0 ? card.variants.join(' · ') : null}
-          />
+          <DetailRow label="Variant" value={params.variant ?? null} />
           <DetailRow label="Rarity" value={card.rarity} />
           <DetailRow label="Category" value={card.category} />
         </View>
@@ -138,7 +136,7 @@ export default function ConfirmMint() {
         gradeName={gradeName}
         isPrototype={isPrototype}
         isTest={isTestMode}
-        variants={card.variants}
+        variants={params.variant ? [params.variant] : []}
       />
 
       <Pressable

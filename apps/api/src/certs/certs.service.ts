@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -36,6 +37,18 @@ export class CertsService {
     const card = await this.catalog.getById(input.cardboardTensId);
     if (!card) {
       throw new NotFoundException(`Unknown card: ${input.cardboardTensId}`);
+    }
+
+    // The snapshot records the ONE variant being slabbed, not the catalog's
+    // full list — a choice is mandatory whenever the card offers variants.
+    if (card.variants.length > 0) {
+      if (!input.variant || !card.variants.includes(input.variant)) {
+        throw new BadRequestException(
+          `variant must be one of: ${card.variants.join(', ')}`,
+        );
+      }
+    } else if (input.variant) {
+      throw new BadRequestException('this card has no variants to choose');
     }
 
     const isTest = input.isTest ?? false;
@@ -94,7 +107,7 @@ export class CertsService {
           releaseYear: card.releaseYear,
           category: card.category,
           cardImageUrl: card.cardImageUrl,
-          variants: card.variants,
+          variants: input.variant ? [input.variant] : [],
           ...gradeFields,
         },
         include: { photos: true },

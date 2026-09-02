@@ -45,11 +45,21 @@ describe('public cert endpoints', () => {
     await prisma.$disconnect();
   });
 
+  // Stub cards' first listed variant, required at mint time.
+  const DEFAULT_VARIANTS: Record<string, string> = {
+    'cbt-0001': 'Holofoil',
+    'cbt-0002': '1st Edition',
+  };
+
   const mintOne = async (cardboardTensId: string): Promise<string> => {
     const res = await request(app.getHttpServer())
       .post('/certs')
       .set('Authorization', `Bearer ${token}`)
-      .send({ cardboardTensId, isPrototype: false });
+      .send({
+        cardboardTensId,
+        isPrototype: false,
+        variant: DEFAULT_VARIANTS[cardboardTensId],
+      });
     return res.body.certNumber as string;
   };
 
@@ -111,7 +121,7 @@ describe('public cert endpoints', () => {
     const testMint = await request(app.getHttpServer())
       .post('/certs')
       .set('Authorization', `Bearer ${token}`)
-      .send({ cardboardTensId: 'cbt-0002', isPrototype: false, isTest: true })
+      .send({ cardboardTensId: 'cbt-0002', variant: '1st Edition', isPrototype: false, isTest: true })
       .expect(201);
     const testNumber = testMint.body.certNumber as string;
 

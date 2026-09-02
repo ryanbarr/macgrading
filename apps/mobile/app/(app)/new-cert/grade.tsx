@@ -10,7 +10,7 @@ import { theme } from '../../../src/theme';
 
 /** Pre-mint grade entry: the label above builds live as the grade is picked. */
 export default function NewCertGrade() {
-  const params = useLocalSearchParams<{ card: string }>();
+  const params = useLocalSearchParams<{ card: string; variant?: string }>();
   const gradeNames = useGradeNames();
   const { isTestMode } = useMode();
   const [selected, setSelected] = useState<string | null>(null);
@@ -41,7 +41,7 @@ export default function NewCertGrade() {
         gradeName={selectedName}
         isPrototype={false}
         isTest={isTestMode}
-        variants={card.variants}
+        variants={params.variant ? [params.variant] : []}
       />
       <GradePicker
         value={selected}
@@ -54,7 +54,11 @@ export default function NewCertGrade() {
         onPress={() =>
           router.push({
             pathname: '/new-cert/confirm',
-            params: { card: params.card, grade: selected },
+            params: {
+              card: params.card,
+              grade: selected,
+              ...(params.variant ? { variant: params.variant } : {}),
+            },
           })
         }
       >

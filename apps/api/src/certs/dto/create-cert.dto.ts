@@ -20,6 +20,15 @@ export class CreateCertDto {
   @IsBoolean()
   isTest?: boolean;
 
+  /**
+   * The chosen variant being slabbed. Required (and validated against the
+   * card's listed variants) when the card has variants; forbidden otherwise.
+   */
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  variant?: string;
+
   /** When present, the cert mints directly to GRADED in the same transaction. */
   @IsOptional()
   @Matches(GRADE_PATTERN, { message: GRADE_MESSAGE })

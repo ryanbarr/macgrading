@@ -51,7 +51,7 @@ describe('cert photos', () => {
     const res = await request(app.getHttpServer())
       .post('/certs')
       .set(authed())
-      .send({ cardboardTensId: 'cbt-0001', isPrototype: false });
+      .send({ cardboardTensId: 'cbt-0001', variant: 'Holofoil', isPrototype: false });
     return res.body.certNumber as string;
   };
 

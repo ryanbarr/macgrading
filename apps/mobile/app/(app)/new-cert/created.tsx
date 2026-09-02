@@ -8,7 +8,13 @@ export default function Created() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Cert minted', headerBackVisible: false }} />
+      <Stack.Screen
+        options={{
+          title: 'Cert minted',
+          headerBackVisible: false,
+          gestureEnabled: false, // the mint flow behind us is spent
+        }}
+      />
       <Text style={styles.caption}>Certification number</Text>
       <Pressable
         onPress={async () => {
@@ -20,7 +26,12 @@ export default function Created() {
       </Pressable>
       <Pressable
         style={styles.button}
-        onPress={() => router.replace(`/cert/${certNumber}`)}
+        onPress={() => {
+          // Collapse the spent mint flow (search → card → grade → created)
+          // so Back from the cert goes Home, never into re-grading.
+          router.dismissAll();
+          router.push(`/cert/${certNumber}`);
+        }}
       >
         <Text style={styles.buttonText}>View cert & add photos</Text>
       </Pressable>

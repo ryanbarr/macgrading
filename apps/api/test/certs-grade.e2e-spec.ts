@@ -47,7 +47,7 @@ describe('cert grading', () => {
     const res = await request(app.getHttpServer())
       .post('/certs')
       .set('Authorization', `Bearer ${token}`)
-      .send({ cardboardTensId: 'cbt-0001', isPrototype: false });
+      .send({ cardboardTensId: 'cbt-0001', variant: 'Holofoil', isPrototype: false });
     return res.body.certNumber as string;
   };
 

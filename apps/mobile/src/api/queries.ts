@@ -56,6 +56,7 @@ export function useMintCert() {
       cardboardTensId: string;
       isPrototype: boolean;
       isTest?: boolean;
+      variant?: string;
       grade?: string;
     }) => apiFetch<CertDto>('/certs', { method: 'POST', body: input, token }),
     onSuccess: (cert) => {

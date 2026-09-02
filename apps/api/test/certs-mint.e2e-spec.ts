@@ -54,13 +54,13 @@ describe('cert minting', () => {
   it('requires auth', async () => {
     await request(app.getHttpServer())
       .post('/certs')
-      .send({ cardboardTensId: 'cbt-0001', isPrototype: false })
+      .send({ cardboardTensId: 'cbt-0001', variant: 'Holofoil', isPrototype: false })
       .expect(401);
   });
 
   it('mints sequential standard numbers with a full card snapshot', async () => {
     const first = await mint({
-      cardboardTensId: 'cbt-0001',
+      cardboardTensId: 'cbt-0001', variant: 'Holofoil',
       isPrototype: false,
     }).expect(201);
     expect(first.body).toMatchObject({
@@ -73,7 +73,7 @@ describe('cert minting', () => {
       cardNumber: '4/102',
       releaseYear: 1999,
       category: 'Pokemon',
-      variants: ['Holofoil', '1st Edition'],
+      variants: ['Holofoil'],
       grade: null,
       gradeName: null,
       photos: [],
@@ -81,7 +81,7 @@ describe('cert minting', () => {
     expect(first.body).not.toHaveProperty('id');
 
     const second = await mint({
-      cardboardTensId: 'cbt-0002',
+      cardboardTensId: 'cbt-0002', variant: '1st Edition',
       isPrototype: false,
     }).expect(201);
     expect(second.body.certNumber).toBe('000000002');
@@ -89,7 +89,7 @@ describe('cert minting', () => {
 
   it('mints directly to GRADED when a grade is supplied (atomic)', async () => {
     const res = await mint({
-      cardboardTensId: 'cbt-0001',
+      cardboardTensId: 'cbt-0001', variant: 'Holofoil',
       isPrototype: false,
       grade: '10',
     }).expect(201);
@@ -112,7 +112,7 @@ describe('cert minting', () => {
 
   it('mint-with-grade freezes null when the grade has no configured name', async () => {
     const res = await mint({
-      cardboardTensId: 'cbt-0002',
+      cardboardTensId: 'cbt-0002', variant: '1st Edition',
       isPrototype: false,
       grade: '7',
     }).expect(201);
@@ -123,21 +123,49 @@ describe('cert minting', () => {
 
   it('rejects invalid grades at mint time without consuming a number', async () => {
     await mint({
-      cardboardTensId: 'cbt-0001',
+      cardboardTensId: 'cbt-0001', variant: 'Holofoil',
       isPrototype: false,
       grade: '10.5',
     }).expect(400);
     const next = await mint({
-      cardboardTensId: 'cbt-0001',
+      cardboardTensId: 'cbt-0001', variant: 'Holofoil',
       isPrototype: false,
     }).expect(201);
     expect(next.body.certNumber).toBe('000000001');
   });
 
-  it('test certs run on their own T-prefixed sequences', async () => {
-    await mint({ cardboardTensId: 'cbt-0001', isPrototype: false }).expect(201);
-    const test = await mint({
+  it('requires a valid variant when the card lists variants', async () => {
+    // cbt-0001 lists variants — omitting or inventing one must 400 without
+    // consuming a number.
+    await mint({ cardboardTensId: 'cbt-0001', isPrototype: false }).expect(400);
+    await mint({
       cardboardTensId: 'cbt-0001',
+      isPrototype: false,
+      variant: 'Made Up Foil',
+    }).expect(400);
+    const ok = await mint({
+      cardboardTensId: 'cbt-0001',
+      isPrototype: false,
+      variant: '1st Edition',
+    }).expect(201);
+    expect(ok.body.certNumber).toBe('000000001');
+    expect(ok.body.variants).toEqual(['1st Edition']); // chosen one only
+  });
+
+  it('rejects a variant for a card that has none, and mints clean without one', async () => {
+    await mint({
+      cardboardTensId: 'cbt-0004',
+      isPrototype: false,
+      variant: 'Holofoil',
+    }).expect(400);
+    const ok = await mint({ cardboardTensId: 'cbt-0004', isPrototype: false }).expect(201);
+    expect(ok.body.variants).toEqual([]);
+  });
+
+  it('test certs run on their own T-prefixed sequences', async () => {
+    await mint({ cardboardTensId: 'cbt-0001', variant: 'Holofoil', isPrototype: false }).expect(201);
+    const test = await mint({
+      cardboardTensId: 'cbt-0001', variant: 'Holofoil',
       isPrototype: false,
       isTest: true,
     }).expect(201);
@@ -145,7 +173,7 @@ describe('cert minting', () => {
     expect(test.body.isTest).toBe(true);
 
     const testProto = await mint({
-      cardboardTensId: 'cbt-0002',
+      cardboardTensId: 'cbt-0002', variant: '1st Edition',
       isPrototype: true,
       isTest: true,
     }).expect(201);
@@ -153,16 +181,16 @@ describe('cert minting', () => {
 
     // Live sequence is unaffected by test mints.
     const live = await mint({
-      cardboardTensId: 'cbt-0002',
+      cardboardTensId: 'cbt-0002', variant: '1st Edition',
       isPrototype: false,
     }).expect(201);
     expect(live.body.certNumber).toBe('000000002');
   });
 
   it('prototype numbers run on their own sequence', async () => {
-    await mint({ cardboardTensId: 'cbt-0001', isPrototype: false }).expect(201);
+    await mint({ cardboardTensId: 'cbt-0001', variant: 'Holofoil', isPrototype: false }).expect(201);
     const proto = await mint({
-      cardboardTensId: 'cbt-0002',
+      cardboardTensId: 'cbt-0002', variant: '1st Edition',
       isPrototype: true,
     }).expect(201);
     expect(proto.body.certNumber).toBe('P000000001');
@@ -171,7 +199,7 @@ describe('cert minting', () => {
   it('404s for an unknown card and does not consume a number', async () => {
     await mint({ cardboardTensId: 'cbt-nope', isPrototype: false }).expect(404);
     const next = await mint({
-      cardboardTensId: 'cbt-0001',
+      cardboardTensId: 'cbt-0001', variant: 'Holofoil',
       isPrototype: false,
     }).expect(201);
     expect(next.body.certNumber).toBe('000000001');
@@ -185,7 +213,7 @@ describe('cert minting', () => {
   it('concurrent mints produce unique consecutive numbers with no gaps', async () => {
     const results = await Promise.all(
       Array.from({ length: 10 }, () =>
-        mint({ cardboardTensId: 'cbt-0001', isPrototype: false }),
+        mint({ cardboardTensId: 'cbt-0001', variant: 'Holofoil', isPrototype: false }),
       ),
     );
     const numbers = results.map((r) => {
@@ -207,7 +235,7 @@ describe('cert minting', () => {
         where: { type: 'STANDARD' },
         data: { nextValue: 1_000_000_000 },
       });
-      await mint({ cardboardTensId: 'cbt-0001', isPrototype: false }).expect(
+      await mint({ cardboardTensId: 'cbt-0001', variant: 'Holofoil', isPrototype: false }).expect(
         500,
       );
       const counter = await prisma.certCounter.findUniqueOrThrow({

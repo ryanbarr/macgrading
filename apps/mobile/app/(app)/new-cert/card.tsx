@@ -26,6 +26,7 @@ function DetailRow({ label, value }: { label: string; value: string | null }) {
 export default function CardDetail() {
   const params = useLocalSearchParams<{ card: string }>();
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [variant, setVariant] = useState<string | null>(null);
 
   let card: CardDetailDto | null = null;
   try {
@@ -78,10 +79,6 @@ export default function CardDetail() {
             value={card.setReleaseDate ?? (card.releaseYear ? String(card.releaseYear) : null)}
           />
           <DetailRow label="Rarity" value={card.rarity} />
-          <DetailRow
-            label="Variants"
-            value={card.variants.length > 0 ? card.variants.join(' · ') : null}
-          />
           <DetailRow label="Type" value={typeLine || null} />
           <DetailRow label="HP" value={card.hp} />
           <DetailRow label="Artist" value={card.artist} />
@@ -96,19 +93,53 @@ export default function CardDetail() {
           <DetailRow label="Language" value={card.languageCode} />
           <DetailRow label="Category" value={card.category} />
         </View>
+
+        {card.variants.length > 0 && (
+          <>
+            <Text style={styles.variantTitle}>Which variant is this?</Text>
+            <View style={styles.variantChips}>
+              {card.variants.map((option) => {
+                const selected = variant === option;
+                return (
+                  <Pressable
+                    key={option}
+                    style={[styles.chip, selected && styles.chipSelected]}
+                    onPress={() => setVariant(option)}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
+                  >
+                    <Text
+                      style={[styles.chipText, selected && styles.chipTextSelected]}
+                    >
+                      {option}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </>
+        )}
       </ScrollView>
 
       <View style={styles.footer}>
         <Pressable
-          style={styles.button}
+          style={[
+            styles.button,
+            card.variants.length > 0 && !variant && styles.buttonDisabled,
+          ]}
+          disabled={card.variants.length > 0 && !variant}
           onPress={() =>
             router.push({
               pathname: '/new-cert/grade',
-              params: { card: params.card },
+              params: { card: params.card, ...(variant ? { variant } : {}) },
             })
           }
         >
-          <Text style={styles.buttonText}>Confirm Card</Text>
+          <Text style={styles.buttonText}>
+            {card.variants.length > 0 && !variant
+              ? 'Pick a variant to continue'
+              : 'Confirm Card'}
+          </Text>
         </Pressable>
       </View>
 
@@ -181,4 +212,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: { color: '#ffffff', fontWeight: '700', fontSize: 16 },
+  buttonDisabled: { opacity: 0.4 },
+  variantTitle: { fontSize: 16, fontWeight: '700', color: theme.colors.text },
+  variantChips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing(2) },
+  chip: {
+    backgroundColor: theme.colors.card,
+    borderColor: theme.colors.border,
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingVertical: theme.spacing(2),
+    paddingHorizontal: theme.spacing(3),
+  },
+  chipSelected: {
+    backgroundColor: theme.colors.accent,
+    borderColor: theme.colors.accent,
+  },
+  chipText: { fontSize: 14, color: theme.colors.text },
+  chipTextSelected: { color: '#ffffff', fontWeight: '600' },
 });
