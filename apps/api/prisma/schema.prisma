@@ -48,6 +48,7 @@ model Cert {
   releaseYear     Int?
   category        String?
   cardImageUrl    String?
+  variants        String[]   @default([])
 
   grade      Decimal?  @db.Decimal(4, 1)
   gradeName  String?

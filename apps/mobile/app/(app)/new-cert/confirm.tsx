@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import { useGradeNames, useMintCert } from '../../../src/api/queries';
+import { CardImageViewer } from '../../../src/components/CardImageViewer';
 import { LabelPreview } from '../../../src/components/LabelPreview';
 import { theme } from '../../../src/theme';
 
@@ -29,6 +30,7 @@ function DetailRow({ label, value }: { label: string; value: string | null }) {
 export default function ConfirmMint() {
   const params = useLocalSearchParams<{ card: string; grade: string }>();
   const [isPrototype, setIsPrototype] = useState(false);
+  const [viewerOpen, setViewerOpen] = useState(false);
   const gradeNames = useGradeNames();
   const mint = useMintCert();
 
@@ -86,12 +88,16 @@ export default function ConfirmMint() {
       <Text style={styles.sectionTitle}>The card</Text>
       <View style={styles.cardBox}>
         {card.cardThumbUrl ? (
-          <Image
-            source={{ uri: card.cardThumbUrl }}
-            style={styles.thumb}
-            resizeMode="cover"
-            accessibilityLabel={`Card image for ${card.cardName}`}
-          />
+          <Pressable
+            onPress={() => setViewerOpen(true)}
+            accessibilityLabel={`Card image for ${card.cardName} — tap to zoom`}
+          >
+            <Image
+              source={{ uri: card.cardThumbUrl }}
+              style={styles.thumb}
+              resizeMode="cover"
+            />
+          </Pressable>
         ) : (
           <View style={[styles.thumb, styles.thumbPlaceholder]} />
         )}
@@ -141,6 +147,11 @@ export default function ConfirmMint() {
           {mint.isPending ? 'Minting…' : 'Mint Certification'}
         </Text>
       </Pressable>
+      <CardImageViewer
+        visible={viewerOpen}
+        imageUrl={card.cardImageUrl ?? card.cardThumbUrl ?? null}
+        onClose={() => setViewerOpen(false)}
+      />
     </ScrollView>
   );
 }

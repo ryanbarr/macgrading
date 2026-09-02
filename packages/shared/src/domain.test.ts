@@ -78,6 +78,7 @@ describe('domain constants', () => {
       releaseYear: 1999,
       category: 'Pokemon',
       cardImageUrl: null,
+      variants: ['Holofoil'],
       grade: '10',
       gradeName: 'Mac Daddy',
       gradedAt: '2026-08-31T17:00:00.000Z',

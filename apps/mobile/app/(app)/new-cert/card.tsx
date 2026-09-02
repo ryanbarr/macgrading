@@ -3,13 +3,13 @@ import { Redirect, router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
   Image,
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { CardImageViewer } from '../../../src/components/CardImageViewer';
 import { theme } from '../../../src/theme';
 
 function DetailRow({ label, value }: { label: string; value: string | null }) {
@@ -112,37 +112,11 @@ export default function CardDetail() {
         </Pressable>
       </View>
 
-      <Modal
+      <CardImageViewer
         visible={viewerOpen}
-        animationType="fade"
-        onRequestClose={() => setViewerOpen(false)}
-      >
-        <View style={styles.viewer}>
-          <ScrollView
-            style={styles.viewerScroll}
-            contentContainerStyle={styles.viewerContent}
-            maximumZoomScale={5}
-            minimumZoomScale={1}
-            bouncesZoom
-            centerContent
-          >
-            {card.cardImageUrl && (
-              <Image
-                source={{ uri: card.cardImageUrl }}
-                style={styles.viewerImage}
-                resizeMode="contain"
-              />
-            )}
-          </ScrollView>
-          <Pressable
-            style={styles.viewerClose}
-            onPress={() => setViewerOpen(false)}
-            accessibilityLabel="Close image viewer"
-          >
-            <Text style={styles.viewerCloseText}>Close</Text>
-          </Pressable>
-        </View>
-      </Modal>
+        imageUrl={card.cardImageUrl}
+        onClose={() => setViewerOpen(false)}
+      />
     </View>
   );
 }
@@ -207,18 +181,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: { color: '#ffffff', fontWeight: '700', fontSize: 16 },
-  viewer: { flex: 1, backgroundColor: '#171717' },
-  viewerScroll: { flex: 1 },
-  viewerContent: { flexGrow: 1, alignItems: 'center', justifyContent: 'center' },
-  viewerImage: { width: '100%', aspectRatio: 63 / 88 },
-  viewerClose: {
-    position: 'absolute',
-    top: theme.spacing(14),
-    right: theme.spacing(5),
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 999,
-    paddingVertical: theme.spacing(2),
-    paddingHorizontal: theme.spacing(4),
-  },
-  viewerCloseText: { color: '#ffffff', fontWeight: '600' },
 });

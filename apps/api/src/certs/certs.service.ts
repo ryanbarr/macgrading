@@ -88,6 +88,7 @@ export class CertsService {
           releaseYear: card.releaseYear,
           category: card.category,
           cardImageUrl: card.cardImageUrl,
+          variants: card.variants,
           ...gradeFields,
         },
         include: { photos: true },

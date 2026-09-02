@@ -71,6 +71,11 @@ export default async function CertPage({ params }: Props) {
               {cert.cardNumber ? ` · ${cert.cardNumber}` : ''}
               {cert.releaseYear ? ` · ${cert.releaseYear}` : ''}
             </p>
+            {cert.variants.length > 0 && (
+              <p className="text-sm font-semibold text-neutral-600">
+                {cert.variants.join(' · ')}
+              </p>
+            )}
             {cert.category && <p className="text-sm text-neutral-400">{cert.category}</p>}
           </div>
           <div className="text-right">

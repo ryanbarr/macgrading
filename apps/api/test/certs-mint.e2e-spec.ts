@@ -73,6 +73,7 @@ describe('cert minting', () => {
       cardNumber: '4/102',
       releaseYear: 1999,
       category: 'Pokemon',
+      variants: ['Holofoil', '1st Edition'],
       grade: null,
       gradeName: null,
       photos: [],

@@ -37,6 +37,18 @@ interface CardboardTensSearchResponse {
 }
 
 const DEFAULT_BASE_URL = 'https://www.cardboardtens.com/api/v1';
+
+/** CardboardTens sends camelCase variant tokens ("reverseHolo") — humanize
+ *  to label-ready text ("Reverse Holo") so the whole stack, including cert
+ *  snapshots, stores display form. */
+export function humanizeVariant(raw: string): string {
+  return raw
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .split(' ')
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
 const SEARCH_LIMIT = 25;
 const MAX_RETRY_AFTER_SECONDS = 5;
 const SERVER_ERROR_RETRY_SECONDS = 0.5;
@@ -130,7 +142,7 @@ export class CardboardTensCardCatalogService extends CardCatalogService {
       category: 'Pokémon',
       cardImageUrl: card.images.large ?? card.images.small,
       cardThumbUrl: card.images.small ?? card.images.large,
-      variants: card.variants,
+      variants: card.variants.map(humanizeVariant),
       rarity: card.rarity,
       supertype: card.supertype,
       subtypes: card.subtypes,

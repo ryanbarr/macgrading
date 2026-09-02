@@ -64,6 +64,8 @@ export interface CertDto {
   releaseYear: number | null;
   category: string | null;
   cardImageUrl: string | null;
+  /** Variant labels frozen at mint time (display form, e.g. "Reverse Holo"). */
+  variants: string[];
   grade: string | null;
   gradeName: string | null;
   gradedAt: string | null;

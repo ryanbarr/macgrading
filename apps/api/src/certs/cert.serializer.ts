@@ -16,6 +16,7 @@ export function toCertDto(
     releaseYear: cert.releaseYear,
     category: cert.category,
     cardImageUrl: cert.cardImageUrl,
+    variants: cert.variants,
     grade: cert.grade ? cert.grade.toString() : null,
     gradeName: cert.gradeName,
     gradedAt: cert.gradedAt ? cert.gradedAt.toISOString() : null,
