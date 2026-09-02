@@ -26,7 +26,7 @@ export function LabelPreview({ card, certNumber, grade, gradeName, isPrototype }
       </Text>
       {card.category && <Text style={styles.meta}>{card.category}</Text>}
       <View style={styles.bottom}>
-        <Text style={styles.cert}>{certNumber ?? '— pending —'}</Text>
+        <Text style={styles.cert}>{certNumber ?? ''}</Text>
         <Text style={styles.grade}>
           {grade ? `${grade}${gradeName ? ` ${gradeName.toUpperCase()}` : ''}` : ''}
         </Text>

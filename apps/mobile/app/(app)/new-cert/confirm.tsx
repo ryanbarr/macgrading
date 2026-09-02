@@ -116,10 +116,15 @@ export default function ConfirmMint() {
         isPrototype={isPrototype}
       />
 
-      <View style={styles.protoRow}>
+      <Pressable
+        style={styles.protoRow}
+        onPress={() => setIsPrototype((value) => !value)}
+        accessibilityRole="switch"
+        accessibilityState={{ checked: isPrototype }}
+      >
         <Text style={styles.protoLabel}>Prototype</Text>
         <Switch value={isPrototype} onValueChange={setIsPrototype} />
-      </View>
+      </Pressable>
 
       <Text style={styles.warning}>
         Check every detail — confirming mints a permanent sequential number
@@ -127,7 +132,7 @@ export default function ConfirmMint() {
       </Text>
       <Pressable style={styles.button} disabled={mint.isPending} onPress={confirm}>
         <Text style={styles.buttonText}>
-          {mint.isPending ? 'Minting…' : 'Everything is correct — mint cert'}
+          {mint.isPending ? 'Minting…' : 'Mint Certification'}
         </Text>
       </Pressable>
     </ScrollView>

@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useGradeNames } from '../../../src/api/queries';
 import { GradePicker } from '../../../src/components/GradePicker';
+import { LabelPreview } from '../../../src/components/LabelPreview';
 import { theme } from '../../../src/theme';
 
-/** Pre-mint grade entry: nothing is permanent until the Confirm screen. */
+/** Pre-mint grade entry: the label above builds live as the grade is picked. */
 export default function NewCertGrade() {
   const params = useLocalSearchParams<{ card: string }>();
   const gradeNames = useGradeNames();
@@ -30,21 +31,19 @@ export default function NewCertGrade() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Enter the grade' }} />
-      <Text style={styles.card}>{card.cardName}</Text>
-      <Text style={styles.prompt}>What did the dice say?</Text>
+      <Stack.Screen options={{ title: 'Enter Grade' }} />
+      <LabelPreview
+        card={card}
+        certNumber={null}
+        grade={selected}
+        gradeName={selectedName}
+        isPrototype={false}
+      />
       <GradePicker
         value={selected}
         gradeNames={gradeNames.data ?? []}
         onSelect={setSelected}
       />
-      <View style={styles.selectedBox}>
-        <Text style={styles.selectedText}>
-          {selected
-            ? `${selected}${selectedName ? ` — ${selectedName}` : ' (no name configured yet)'}`
-            : 'Pick a grade'}
-        </Text>
-      </View>
       <Pressable
         style={[styles.button, !selected && styles.buttonDisabled]}
         disabled={!selected}
@@ -55,7 +54,7 @@ export default function NewCertGrade() {
           })
         }
       >
-        <Text style={styles.buttonText}>Review and confirm</Text>
+        <Text style={styles.buttonText}>Confirm Grade</Text>
       </Pressable>
     </View>
   );
@@ -68,17 +67,6 @@ const styles = StyleSheet.create({
     padding: theme.spacing(4),
     gap: theme.spacing(4),
   },
-  card: { fontSize: 18, fontWeight: '600', color: theme.colors.text },
-  prompt: { fontSize: 14, color: theme.colors.subtle },
-  selectedBox: {
-    backgroundColor: theme.colors.card,
-    borderColor: theme.colors.border,
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: theme.spacing(4),
-    alignItems: 'center',
-  },
-  selectedText: { fontSize: 18, fontWeight: '700', color: theme.colors.text },
   button: {
     backgroundColor: theme.colors.accent,
     borderRadius: 8,
