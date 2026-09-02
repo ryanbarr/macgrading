@@ -9,7 +9,12 @@ export function StatusChip({
   status: CertStatus;
   photoCount: number;
 }) {
-  const label = status === 'PENDING_GRADE' ? 'Needs grade' : 'Graded';
+  const label =
+    status === 'PENDING_GRADE'
+      ? 'Needs grade'
+      : status === 'VOIDED'
+        ? 'Voided'
+        : 'Graded';
   return (
     <View style={styles.row}>
       <View style={[styles.chip, status === 'GRADED' && styles.chipDone]}>

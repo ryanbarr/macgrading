@@ -28,6 +28,11 @@ describe('defineAbilityFor', () => {
     expect(admin.can('create', 'CertPhoto')).toBe(true);
   });
 
+  it('admins can void certs; team members cannot', () => {
+    expect(admin.can('void', 'Cert')).toBe(true);
+    expect(teamMember.can('void', 'Cert')).toBe(false);
+  });
+
   it('admins additionally manage users and grade names', () => {
     expect(admin.can('manage', 'User')).toBe(true);
     expect(admin.can('update', 'GradeName')).toBe(true);

@@ -8,6 +8,7 @@ import { validateEnv } from './config/env.validation';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import { AuthModule } from './auth/auth.module';
 import { GradeNamesModule } from './grade-names/grade-names.module';
+import { UsersModule } from './users/users.module';
 import { CardsModule } from './cards/cards.module';
 import { CertsModule } from './certs/certs.module';
 
@@ -28,6 +29,7 @@ import { CertsModule } from './certs/certs.module';
     PrismaModule,
     AuthModule,
     GradeNamesModule,
+    UsersModule,
     CardsModule,
     CertsModule,
   ],

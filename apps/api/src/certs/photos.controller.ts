@@ -31,10 +31,13 @@ export class PhotosController {
     private readonly certs: CertsService,
   ) {}
 
-  private async findCert(certNumber: string) {
+  private async findCert(certNumber: string, options?: { allowVoided?: boolean }) {
     const cert = await this.prisma.cert.findUnique({ where: { certNumber } });
     if (!cert) {
       throw new NotFoundException(`No cert ${certNumber}`);
+    }
+    if (cert.status === 'VOIDED' && !options?.allowVoided) {
+      throw new ConflictException('Cert is voided; photos are frozen');
     }
     return cert;
   }
@@ -98,7 +101,8 @@ export class PhotosController {
     @Param('certNumber') certNumber: string,
     @Param('photoId') photoId: string,
   ) {
-    const cert = await this.findCert(certNumber);
+    // Deleting a photo from a voided cert is allowed (cleanup), unlike adds.
+    const cert = await this.findCert(certNumber, { allowVoided: true });
     const photo = await this.prisma.certPhoto.findFirst({
       where: { id: photoId, certId: cert.id },
     });

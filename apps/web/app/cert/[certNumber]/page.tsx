@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const gradePart = cert.grade
     ? ` — MAC ${cert.grade}${cert.gradeName ? ` ${cert.gradeName}` : ''}`
     : '';
-  const title = `${cert.cardName}${gradePart}`;
+  const title = `${cert.cardName}${gradePart}${cert.voidedAt ? ' (VOIDED)' : ''}`;
   return {
     title: `${title} | MAC Grading`,
     description: `${cert.cardName} (${cert.setName}) — MAC Grading certification ${cert.certNumber}.`,
@@ -51,6 +51,20 @@ export default async function CertPage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-12">
+      {cert.voidedAt && (
+        <div className="mb-6 rounded-lg border-2 border-red-700 bg-red-50 p-4 text-center">
+          <p className="text-xl font-black tracking-wide text-red-700">VOIDED</p>
+          <p className="mt-1 text-sm text-red-700">
+            This certification was voided by MAC Grading on{' '}
+            {new Date(cert.voidedAt).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}{' '}
+            and is no longer valid. The number will never be reused.
+          </p>
+        </div>
+      )}
       <div className="rounded-xl border-2 border-neutral-900 bg-white p-6">
         <div className="flex items-start justify-between">
           <p className="text-xs font-black tracking-[0.3em] text-neutral-900">

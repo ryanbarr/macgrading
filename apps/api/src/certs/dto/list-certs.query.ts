@@ -19,6 +19,12 @@ export class ListCertsQuery {
   @IsBoolean()
   test?: boolean;
 
+  /** true → voided certs appear in listings (web admin). */
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsBoolean()
+  includeVoided?: boolean;
+
   @IsOptional()
   @Type(() => Number)
   @IsInt()

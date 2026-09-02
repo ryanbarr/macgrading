@@ -19,6 +19,7 @@ import { CertsService } from './certs.service';
 import { CreateCertDto } from './dto/create-cert.dto';
 import { ListCertsQuery } from './dto/list-certs.query';
 import { SetGradeDto } from './dto/set-grade.dto';
+import { VoidCertDto } from './dto/void-cert.dto';
 
 @Controller('certs')
 export class CertsController {
@@ -48,6 +49,17 @@ export class CertsController {
     @CurrentUser() user: User,
   ) {
     return this.certs.setGrade(certNumber, dto.grade, user.id);
+  }
+
+  @Post(':certNumber/void')
+  @UseGuards(JwtAuthGuard, PoliciesGuard)
+  @CheckPolicies((ability) => ability.can('void', 'Cert'))
+  void(
+    @Param('certNumber') certNumber: string,
+    @Body() dto: VoidCertDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.certs.void(certNumber, dto.reason, user.id);
   }
 
   @Get()

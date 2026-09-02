@@ -137,23 +137,33 @@ export default function CertDetail() {
           <Text style={styles.subtle}>No photos yet — add them after sealing the slab.</Text>
         )}
       </View>
-      <View style={styles.photoButtons}>
-        <Pressable
-          style={[styles.button, styles.buttonHalf]}
-          disabled={uploading}
-          onPress={() => addPhoto('camera')}
-        >
-          <Text style={styles.buttonText}>{uploading ? 'Uploading…' : 'Take photo'}</Text>
-        </Pressable>
-        <Pressable
-          style={[styles.button, styles.buttonHalf]}
-          disabled={uploading}
-          onPress={() => addPhoto('library')}
-        >
-          <Text style={styles.buttonText}>From library</Text>
-        </Pressable>
-      </View>
-      <Text style={styles.hint}>Long-press a photo to delete it.</Text>
+      {data.status === 'VOIDED' ? (
+        <Text style={styles.subtle}>
+          This cert is voided — photos are frozen.
+        </Text>
+      ) : (
+        <>
+          <View style={styles.photoButtons}>
+            <Pressable
+              style={[styles.button, styles.buttonHalf]}
+              disabled={uploading}
+              onPress={() => addPhoto('camera')}
+            >
+              <Text style={styles.buttonText}>
+                {uploading ? 'Uploading…' : 'Take photo'}
+              </Text>
+            </Pressable>
+            <Pressable
+              style={[styles.button, styles.buttonHalf]}
+              disabled={uploading}
+              onPress={() => addPhoto('library')}
+            >
+              <Text style={styles.buttonText}>From library</Text>
+            </Pressable>
+          </View>
+          <Text style={styles.hint}>Long-press a photo to delete it.</Text>
+        </>
+      )}
     </ScrollView>
   );
 }

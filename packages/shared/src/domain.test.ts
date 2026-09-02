@@ -61,7 +61,7 @@ describe('CardSummary', () => {
 describe('domain constants', () => {
   it('enumerates the spec values', () => {
     expect(ROLES).toEqual(['ADMIN', 'TEAM_MEMBER']);
-    expect(CERT_STATUSES).toEqual(['PENDING_GRADE', 'GRADED']);
+    expect(CERT_STATUSES).toEqual(['PENDING_GRADE', 'GRADED', 'VOIDED']);
     expect(CERT_COUNTER_TYPES).toEqual([
       'STANDARD',
       'PROTOTYPE',
@@ -88,6 +88,7 @@ describe('domain constants', () => {
       grade: '10',
       gradeName: 'Mac Daddy',
       gradedAt: '2026-08-31T17:00:00.000Z',
+      voidedAt: null,
       createdAt: '2026-08-31T16:00:00.000Z',
       photos: [],
     };

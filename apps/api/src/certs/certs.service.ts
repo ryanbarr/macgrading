@@ -126,8 +126,12 @@ export class CertsService {
     if (!cert) {
       throw new NotFoundException(`No cert ${certNumber}`);
     }
-    if (cert.status === 'GRADED') {
-      throw new ConflictException('Cert is already graded; grades are frozen');
+    if (cert.status !== 'PENDING_GRADE') {
+      throw new ConflictException(
+        cert.status === 'VOIDED'
+          ? 'Cert is voided and cannot be graded'
+          : 'Cert is already graded; grades are frozen',
+      );
     }
     const gradeValue = new Prisma.Decimal(grade);
     const gradeName = await this.prisma.gradeName.findUnique({
@@ -141,6 +145,31 @@ export class CertsService {
         gradeName: gradeName?.name ?? null,
         gradedById: userId,
         gradedAt: new Date(),
+      },
+      include: { photos: true },
+    });
+    return toCertDto(updated, this.publicUrlBase());
+  }
+
+  async void(
+    certNumber: string,
+    reason: string | undefined,
+    userId: string,
+  ): Promise<CertDto> {
+    const cert = await this.prisma.cert.findUnique({ where: { certNumber } });
+    if (!cert) {
+      throw new NotFoundException(`No cert ${certNumber}`);
+    }
+    if (cert.status === 'VOIDED') {
+      throw new ConflictException('Cert is already voided');
+    }
+    const updated = await this.prisma.cert.update({
+      where: { certNumber },
+      data: {
+        status: 'VOIDED',
+        voidedById: userId,
+        voidedAt: new Date(),
+        voidReason: reason ?? null,
       },
       include: { photos: true },
     });
@@ -166,11 +195,15 @@ export class CertsService {
     page: number;
     pageSize: number;
     test?: boolean;
+    includeVoided?: boolean;
   }): Promise<CertListDto> {
     const where: Prisma.CertWhereInput = {
       // Training certs never appear in the public catalog; they are listed
-      // only when explicitly requested (mobile Test Mode).
+      // only when explicitly requested (mobile Test Mode). Voided certs are
+      // likewise hidden from listings (direct lookup always works) unless
+      // explicitly included (web admin).
       isTest: query.test === true,
+      ...(query.includeVoided === true ? {} : { status: { not: 'VOIDED' } }),
       ...(query.q
         ? {
             OR: [

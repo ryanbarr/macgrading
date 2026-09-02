@@ -1,7 +1,7 @@
 export const ROLES = ['ADMIN', 'TEAM_MEMBER'] as const;
 export type Role = (typeof ROLES)[number];
 
-export const CERT_STATUSES = ['PENDING_GRADE', 'GRADED'] as const;
+export const CERT_STATUSES = ['PENDING_GRADE', 'GRADED', 'VOIDED'] as const;
 export type CertStatus = (typeof CERT_STATUSES)[number];
 
 export const CERT_COUNTER_TYPES = [
@@ -76,8 +76,20 @@ export interface CertDto {
   grade: string | null;
   gradeName: string | null;
   gradedAt: string | null;
+  /** Set when the cert was voided by an admin; the number is never reused. */
+  voidedAt: string | null;
   createdAt: string;
   photos: CertPhotoDto[];
+}
+
+/** Team member as managed in the web admin (internal surface — id is fine). */
+export interface TeamUserDto {
+  id: string;
+  email: string;
+  name: string;
+  role: Role;
+  isActive: boolean;
+  createdAt: string;
 }
 
 export interface GradeNameDto {

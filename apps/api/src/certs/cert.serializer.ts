@@ -21,6 +21,7 @@ export function toCertDto(
     grade: cert.grade ? cert.grade.toString() : null,
     gradeName: cert.gradeName,
     gradedAt: cert.gradedAt ? cert.gradedAt.toISOString() : null,
+    voidedAt: cert.voidedAt ? cert.voidedAt.toISOString() : null,
     createdAt: cert.createdAt.toISOString(),
     photos: [...cert.photos]
       .sort((a, b) => a.sortOrder - b.sortOrder)
