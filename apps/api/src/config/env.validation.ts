@@ -21,6 +21,8 @@ export class EnvironmentVariables {
   @IsOptional() @IsString() CORS_ORIGIN?: string;
   @IsOptional() @IsString() THROTTLE_TTL_SECONDS?: string;
   @IsOptional() @IsString() THROTTLE_LIMIT?: string;
+  @IsOptional() @IsString() CARDBOARDTENS_API_KEY?: string;
+  @IsOptional() @IsString() CARDBOARDTENS_API_URL?: string;
 }
 
 export function validateEnv(
