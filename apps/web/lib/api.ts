@@ -20,10 +20,11 @@ export async function getCert(certNumber: string): Promise<CertDto | null> {
 }
 
 export async function listCerts(
-  params: { q?: string; page?: number; pageSize?: number } = {},
+  params: { q?: string; page?: number; pageSize?: number; grade?: string } = {},
 ): Promise<CertListDto> {
   const query = new URLSearchParams();
   if (params.q) query.set('q', params.q);
+  if (params.grade) query.set('grade', params.grade);
   if (params.page) query.set('page', String(params.page));
   if (params.pageSize) query.set('pageSize', String(params.pageSize));
   // See getCert for RequestInit cast explanation.

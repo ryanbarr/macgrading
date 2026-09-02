@@ -35,6 +35,7 @@ model User {
   createdAt   DateTime @default(now())
   gradedCerts Cert[] @relation("GradedCerts")
   voidedCerts Cert[] @relation("VoidedCerts")
+  createdCerts Cert[] @relation("CreatedCerts")
 }
 
 model Cert {
@@ -64,6 +65,8 @@ model Cert {
   voidedBy   User?     @relation("VoidedCerts", fields: [voidedById], references: [id])
   voidedAt   DateTime?
   voidReason String?
+  createdById String?
+  createdBy  User?     @relation("CreatedCerts", fields: [createdById], references: [id])
   createdAt  DateTime  @default(now())
   photos     CertPhoto[]
 

@@ -143,6 +143,36 @@ describe('public cert endpoints', () => {
     expect(direct.body.isTest).toBe(true);
   });
 
+  it('filters by exact grade and records the minter', async () => {
+    const graded = await request(app.getHttpServer())
+      .post('/certs')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        cardboardTensId: 'cbt-0001',
+        isPrototype: false,
+        variant: 'Holofoil',
+        grade: '10',
+      })
+      .expect(201);
+    await mintOne('cbt-0004'); // ungraded, no filter match
+
+    const filtered = await request(app.getHttpServer())
+      .get('/certs?grade=10')
+      .expect(200);
+    expect(filtered.body.total).toBe(1);
+    expect(filtered.body.items[0].certNumber).toBe(graded.body.certNumber);
+
+    await request(app.getHttpServer()).get('/certs?grade=11').expect(400);
+
+    const row = await prisma.cert.findUniqueOrThrow({
+      where: { certNumber: graded.body.certNumber as string },
+    });
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { email: 'team@macgrading.com' },
+    });
+    expect(row.createdById).toBe(user.id); // minter audited
+  });
+
   it('rejects bad pagination', async () => {
     await request(app.getHttpServer()).get('/certs?page=0').expect(400);
     await request(app.getHttpServer()).get('/certs?pageSize=500').expect(400);

@@ -100,6 +100,7 @@ export class CertsService {
           certNumber,
           isPrototype: input.isPrototype,
           isTest,
+          createdBy: { connect: { id: userId } },
           cardboardTensId: card.cardboardTensId,
           cardName: card.cardName,
           setName: card.setName,
@@ -196,6 +197,7 @@ export class CertsService {
     pageSize: number;
     test?: boolean;
     includeVoided?: boolean;
+    grade?: string;
   }): Promise<CertListDto> {
     const where: Prisma.CertWhereInput = {
       // Training certs never appear in the public catalog; they are listed
@@ -204,6 +206,7 @@ export class CertsService {
       // explicitly included (web admin).
       isTest: query.test === true,
       ...(query.includeVoided === true ? {} : { status: { not: 'VOIDED' } }),
+      ...(query.grade ? { grade: new Prisma.Decimal(query.grade) } : {}),
       ...(query.q
         ? {
             OR: [

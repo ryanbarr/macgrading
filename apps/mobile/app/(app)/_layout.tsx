@@ -2,6 +2,7 @@ import { Redirect, Stack } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../src/auth/auth-context';
+import { OfflineBanner } from '../../src/components/OfflineBanner';
 import { useMode } from '../../src/mode/mode-context';
 import { theme } from '../../src/theme';
 
@@ -39,6 +40,7 @@ export default function AppLayout() {
   return (
     <View style={{ flex: 1 }}>
       <ModeBanner />
+      <OfflineBanner />
       <Stack
         screenOptions={{
           headerShown: true,

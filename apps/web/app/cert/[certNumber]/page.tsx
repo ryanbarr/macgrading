@@ -1,7 +1,11 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import QRCode from 'qrcode';
 import { isValidCertNumber } from '@macgrading/shared';
+import { ShareCertButton } from '@/components/ShareCertButton';
 import { getCert } from '@/lib/api';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
 interface Props {
   params: Promise<{ certNumber: string }>;
@@ -40,6 +44,13 @@ export default async function CertPage({ params }: Props) {
   if (!cert) {
     notFound();
   }
+
+  const certUrl = `${SITE_URL}/cert/${cert.certNumber}`;
+  const qrDataUrl = await QRCode.toDataURL(certUrl, {
+    margin: 1,
+    width: 192,
+    color: { dark: '#171717', light: '#ffffff' },
+  });
 
   const gradedDate = cert.gradedAt
     ? new Date(cert.gradedAt).toLocaleDateString('en-US', {
@@ -122,6 +133,38 @@ export default async function CertPage({ params }: Props) {
           {gradedDate && <p>Graded {gradedDate}</p>}
         </div>
       </div>
+
+      <section className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-neutral-200 bg-white p-4">
+        <div className="flex items-center gap-4">
+          {/* eslint-disable-next-line @next/next/no-img-element -- data URI QR */}
+          <img
+            src={qrDataUrl}
+            alt={`QR code linking to certification ${cert.certNumber}`}
+            className="h-24 w-24 rounded border border-neutral-200"
+          />
+          <div className="text-sm">
+            {!cert.voidedAt ? (
+              <p className="font-semibold text-neutral-900">
+                ✓ Registered with MAC Grading
+              </p>
+            ) : (
+              <p className="font-semibold text-red-700">Registration voided</p>
+            )}
+            <p className="text-neutral-500">
+              {gradedDate
+                ? `Certified ${gradedDate}`
+                : 'Certification in progress'}
+            </p>
+            <p className="text-neutral-400">
+              Scanning the slab&apos;s QR always lands here.
+            </p>
+          </div>
+        </div>
+        <ShareCertButton
+          url={certUrl}
+          title={`${cert.cardName} — MAC Grading cert ${cert.certNumber}`}
+        />
+      </section>
 
       <section className="mt-8">
         <h2 className="mb-3 text-lg font-bold text-neutral-900">Slab photos</h2>
