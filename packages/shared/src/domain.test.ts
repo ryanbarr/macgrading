@@ -62,7 +62,12 @@ describe('domain constants', () => {
   it('enumerates the spec values', () => {
     expect(ROLES).toEqual(['ADMIN', 'TEAM_MEMBER']);
     expect(CERT_STATUSES).toEqual(['PENDING_GRADE', 'GRADED']);
-    expect(CERT_COUNTER_TYPES).toEqual(['STANDARD', 'PROTOTYPE']);
+    expect(CERT_COUNTER_TYPES).toEqual([
+      'STANDARD',
+      'PROTOTYPE',
+      'TEST_STANDARD',
+      'TEST_PROTOTYPE',
+    ]);
   });
 
   it('CertDto carries decimal grades as strings', () => {
@@ -70,6 +75,7 @@ describe('domain constants', () => {
     const cert: CertDto = {
       certNumber: 'P000000001',
       isPrototype: true,
+      isTest: false,
       status: 'GRADED',
       cardboardTensId: 'cbt_123',
       cardName: 'Charizard',

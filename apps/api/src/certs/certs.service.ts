@@ -38,9 +38,14 @@ export class CertsService {
       throw new NotFoundException(`Unknown card: ${input.cardboardTensId}`);
     }
 
-    const counterType: CertCounterType = input.isPrototype
-      ? 'PROTOTYPE'
-      : 'STANDARD';
+    const isTest = input.isTest ?? false;
+    const counterType: CertCounterType = isTest
+      ? input.isPrototype
+        ? 'TEST_PROTOTYPE'
+        : 'TEST_STANDARD'
+      : input.isPrototype
+        ? 'PROTOTYPE'
+        : 'STANDARD';
 
     const cert = await this.prisma.$transaction(async (tx) => {
       const rows = await tx.$queryRaw<Array<{ nextValue: number }>>`
@@ -54,7 +59,7 @@ export class CertsService {
         );
       }
       const sequenceValue = rows[0].nextValue;
-      const certNumber = formatCertNumber(sequenceValue, input.isPrototype);
+      const certNumber = formatCertNumber(sequenceValue, input.isPrototype, isTest);
       await tx.certCounter.update({
         where: { type: counterType },
         data: { nextValue: sequenceValue + 1 },
@@ -81,6 +86,7 @@ export class CertsService {
         data: {
           certNumber,
           isPrototype: input.isPrototype,
+          isTest,
           cardboardTensId: card.cardboardTensId,
           cardName: card.cardName,
           setName: card.setName,
@@ -146,16 +152,22 @@ export class CertsService {
     q?: string;
     page: number;
     pageSize: number;
+    test?: boolean;
   }): Promise<CertListDto> {
-    const where: Prisma.CertWhereInput = query.q
-      ? {
-          OR: [
-            { certNumber: query.q },
-            { cardName: { contains: query.q, mode: 'insensitive' } },
-            { setName: { contains: query.q, mode: 'insensitive' } },
-          ],
-        }
-      : {};
+    const where: Prisma.CertWhereInput = {
+      // Training certs never appear in the public catalog; they are listed
+      // only when explicitly requested (mobile Test Mode).
+      isTest: query.test === true,
+      ...(query.q
+        ? {
+            OR: [
+              { certNumber: query.q },
+              { cardName: { contains: query.q, mode: 'insensitive' } },
+              { setName: { contains: query.q, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
     const [total, rows] = await this.prisma.$transaction([
       this.prisma.cert.count({ where }),
       this.prisma.cert.findMany({

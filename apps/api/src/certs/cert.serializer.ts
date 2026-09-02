@@ -8,6 +8,7 @@ export function toCertDto(
   return {
     certNumber: cert.certNumber,
     isPrototype: cert.isPrototype,
+    isTest: cert.isTest,
     status: cert.status,
     cardboardTensId: cert.cardboardTensId,
     cardName: cert.cardName,

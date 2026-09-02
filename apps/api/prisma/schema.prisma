@@ -20,6 +20,8 @@ enum CertStatus {
 enum CertCounterType {
   STANDARD
   PROTOTYPE
+  TEST_STANDARD
+  TEST_PROTOTYPE
 }
 
 model User {
@@ -37,6 +39,7 @@ model Cert {
   id              String     @id @default(uuid())
   certNumber      String     @unique
   isPrototype     Boolean
+  isTest          Boolean    @default(false)
   status          CertStatus @default(PENDING_GRADE)
 
   // Card snapshot, copied from CardboardTens at mint time (spec: certs are

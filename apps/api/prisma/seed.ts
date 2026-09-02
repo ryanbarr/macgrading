@@ -3,7 +3,12 @@ import { PrismaClient, Prisma } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  for (const type of ['STANDARD', 'PROTOTYPE'] as const) {
+  for (const type of [
+    'STANDARD',
+    'PROTOTYPE',
+    'TEST_STANDARD',
+    'TEST_PROTOTYPE',
+  ] as const) {
     await prisma.certCounter.upsert({
       where: { type },
       update: {},

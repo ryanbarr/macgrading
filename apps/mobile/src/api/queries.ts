@@ -9,15 +9,17 @@ import { apiFetch } from './client';
 import { useAuth } from '../auth/auth-context';
 
 export const certKeys = {
-  list: (q: string) => ['certs', q] as const,
+  list: (q: string, test = false) => ['certs', q, test] as const,
   detail: (certNumber: string) => ['cert', certNumber] as const,
 };
 
-export function useCerts(q: string) {
+export function useCerts(q: string, test = false) {
   return useQuery({
-    queryKey: certKeys.list(q),
+    queryKey: certKeys.list(q, test),
     queryFn: () =>
-      apiFetch<CertListDto>(`/certs?pageSize=50${q ? `&q=${encodeURIComponent(q)}` : ''}`),
+      apiFetch<CertListDto>(
+        `/certs?pageSize=50${test ? '&test=true' : ''}${q ? `&q=${encodeURIComponent(q)}` : ''}`,
+      ),
   });
 }
 
@@ -53,6 +55,7 @@ export function useMintCert() {
     mutationFn: (input: {
       cardboardTensId: string;
       isPrototype: boolean;
+      isTest?: boolean;
       grade?: string;
     }) => apiFetch<CertDto>('/certs', { method: 'POST', body: input, token }),
     onSuccess: (cert) => {

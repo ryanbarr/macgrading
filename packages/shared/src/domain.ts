@@ -4,7 +4,12 @@ export type Role = (typeof ROLES)[number];
 export const CERT_STATUSES = ['PENDING_GRADE', 'GRADED'] as const;
 export type CertStatus = (typeof CERT_STATUSES)[number];
 
-export const CERT_COUNTER_TYPES = ['STANDARD', 'PROTOTYPE'] as const;
+export const CERT_COUNTER_TYPES = [
+  'STANDARD',
+  'PROTOTYPE',
+  'TEST_STANDARD',
+  'TEST_PROTOTYPE',
+] as const;
 export type CertCounterType = (typeof CERT_COUNTER_TYPES)[number];
 
 /** A card as returned by the card catalog (live CardboardTens API or stub). */
@@ -56,6 +61,8 @@ export interface CertPhotoDto {
 export interface CertDto {
   certNumber: string;
   isPrototype: boolean;
+  /** Training cert — separate T-prefixed sequence, excluded from the catalog. */
+  isTest: boolean;
   status: CertStatus;
   cardboardTensId: string;
   cardName: string;

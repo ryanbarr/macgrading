@@ -1,10 +1,23 @@
-import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import {
+  IsBoolean,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 
 export class ListCertsQuery {
   @IsOptional()
   @IsString()
   q?: string;
+
+  /** true → list ONLY training certs; omitted/false → live certs only. */
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsBoolean()
+  test?: boolean;
 
   @IsOptional()
   @Type(() => Number)

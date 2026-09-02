@@ -15,6 +15,11 @@ export class CreateCertDto {
   @IsBoolean()
   isPrototype!: boolean;
 
+  /** Training cert: mints on the T-prefixed sequences. */
+  @IsOptional()
+  @IsBoolean()
+  isTest?: boolean;
+
   /** When present, the cert mints directly to GRADED in the same transaction. */
   @IsOptional()
   @Matches(GRADE_PATTERN, { message: GRADE_MESSAGE })

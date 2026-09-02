@@ -106,6 +106,33 @@ describe('public cert endpoints', () => {
     expect(byNumber.body.items[0].certNumber).toBe(charizard);
   });
 
+  it('excludes test certs from the public list but serves them by number', async () => {
+    await mintOne('cbt-0001');
+    const testMint = await request(app.getHttpServer())
+      .post('/certs')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ cardboardTensId: 'cbt-0002', isPrototype: false, isTest: true })
+      .expect(201);
+    const testNumber = testMint.body.certNumber as string;
+
+    const publicList = await request(app.getHttpServer()).get('/certs').expect(200);
+    expect(publicList.body.total).toBe(1);
+    expect(
+      publicList.body.items.every((c: { isTest: boolean }) => !c.isTest),
+    ).toBe(true);
+
+    const testList = await request(app.getHttpServer())
+      .get('/certs?test=true')
+      .expect(200);
+    expect(testList.body.total).toBe(1);
+    expect(testList.body.items[0].certNumber).toBe(testNumber);
+
+    const direct = await request(app.getHttpServer())
+      .get(`/certs/${testNumber}`)
+      .expect(200);
+    expect(direct.body.isTest).toBe(true);
+  });
+
   it('rejects bad pagination', async () => {
     await request(app.getHttpServer()).get('/certs?page=0').expect(400);
     await request(app.getHttpServer()).get('/certs?pageSize=500').expect(400);

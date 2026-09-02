@@ -7,8 +7,15 @@ describe('searchDestination', () => {
     expect(searchDestination('P000000042')).toBe('/cert/P000000042');
   });
 
-  it('normalizes a lowercase p prefix', () => {
+  it('normalizes lowercase prefix letters', () => {
     expect(searchDestination('p000000042')).toBe('/cert/P000000042');
+    expect(searchDestination('t000000007')).toBe('/cert/T000000007');
+    expect(searchDestination('tp000000003')).toBe('/cert/TP000000003');
+    expect(searchDestination('Tp000000003')).toBe('/cert/TP000000003');
+  });
+
+  it('rejects malformed prefix orders as catalog searches', () => {
+    expect(searchDestination('pt000000003')).toBe('/catalog?q=pt000000003');
   });
 
   it('trims surrounding whitespace', () => {

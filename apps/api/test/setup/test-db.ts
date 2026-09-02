@@ -8,6 +8,8 @@ export async function resetDb(prisma: PrismaClient): Promise<void> {
   await prisma.certCounter.createMany({
     data: [
       { type: 'STANDARD', nextValue: 1 },
+      { type: 'TEST_STANDARD', nextValue: 1 },
+      { type: 'TEST_PROTOTYPE', nextValue: 1 },
       { type: 'PROTOTYPE', nextValue: 1 },
     ],
   });

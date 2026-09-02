@@ -134,6 +134,31 @@ describe('cert minting', () => {
     expect(next.body.certNumber).toBe('000000001');
   });
 
+  it('test certs run on their own T-prefixed sequences', async () => {
+    await mint({ cardboardTensId: 'cbt-0001', isPrototype: false }).expect(201);
+    const test = await mint({
+      cardboardTensId: 'cbt-0001',
+      isPrototype: false,
+      isTest: true,
+    }).expect(201);
+    expect(test.body.certNumber).toBe('T000000001');
+    expect(test.body.isTest).toBe(true);
+
+    const testProto = await mint({
+      cardboardTensId: 'cbt-0002',
+      isPrototype: true,
+      isTest: true,
+    }).expect(201);
+    expect(testProto.body.certNumber).toBe('TP000000001');
+
+    // Live sequence is unaffected by test mints.
+    const live = await mint({
+      cardboardTensId: 'cbt-0002',
+      isPrototype: false,
+    }).expect(201);
+    expect(live.body.certNumber).toBe('000000002');
+  });
+
   it('prototype numbers run on their own sequence', async () => {
     await mint({ cardboardTensId: 'cbt-0001', isPrototype: false }).expect(201);
     const proto = await mint({

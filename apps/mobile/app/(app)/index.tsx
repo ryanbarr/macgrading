@@ -1,6 +1,7 @@
 import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 import {
+  Alert,
   FlatList,
   Pressable,
   StyleSheet,
@@ -11,21 +12,34 @@ import {
 import { useCerts } from '../../src/api/queries';
 import { useAuth } from '../../src/auth/auth-context';
 import { CertCard } from '../../src/components/CertCard';
+import { useMode } from '../../src/mode/mode-context';
 import { theme } from '../../src/theme';
 
 export default function Home() {
   const { signOut } = useAuth();
+  const { isTestMode, toggleMode } = useMode();
   const [q, setQ] = useState('');
-  const certs = useCerts(q);
+  const certs = useCerts(q, isTestMode);
+
+  const openSettings = () => {
+    Alert.alert('Settings', undefined, [
+      {
+        text: isTestMode ? 'Switch to Live Mode' : 'Switch to Test Mode',
+        onPress: () => void toggleMode(),
+      },
+      { text: 'Sign Out', style: 'destructive', onPress: () => void signOut() },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  };
 
   return (
     <View style={styles.container}>
       <Stack.Screen
         options={{
-          title: 'Certs',
+          title: isTestMode ? 'Test Certs' : 'Certs',
           headerRight: () => (
-            <Pressable onPress={signOut}>
-              <Text style={styles.signOut}>Sign out</Text>
+            <Pressable onPress={openSettings} accessibilityLabel="Settings">
+              <Text style={styles.cog}>⚙️</Text>
             </Pressable>
           ),
         }}
@@ -61,7 +75,7 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.bg },
-  signOut: { color: theme.colors.subtle, fontSize: 14 },
+  cog: { fontSize: 20 },
   search: {
     margin: theme.spacing(4),
     marginBottom: 0,

@@ -56,11 +56,18 @@ export default async function CertPage({ params }: Props) {
           <p className="text-xs font-black tracking-[0.3em] text-neutral-900">
             MAC GRADING
           </p>
-          {cert.isPrototype && (
-            <span className="rounded bg-neutral-900 px-2 py-0.5 text-xs font-bold text-white">
-              PROTOTYPE
-            </span>
-          )}
+          <span className="flex gap-2">
+            {cert.isTest && (
+              <span className="rounded bg-red-700 px-2 py-0.5 text-xs font-bold text-white">
+                TEST CERT
+              </span>
+            )}
+            {cert.isPrototype && (
+              <span className="rounded bg-neutral-900 px-2 py-0.5 text-xs font-bold text-white">
+                PROTOTYPE
+              </span>
+            )}
+          </span>
         </div>
 
         <div className="mt-4 flex flex-wrap items-end justify-between gap-4">

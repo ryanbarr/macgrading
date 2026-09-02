@@ -112,6 +112,7 @@ export default function CertDetail() {
         grade={data.grade}
         gradeName={data.gradeName}
         isPrototype={data.isPrototype}
+        isTest={data.isTest}
         variants={data.variants}
       />
       <StatusChip status={data.status} photoCount={data.photos.length} />

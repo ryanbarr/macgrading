@@ -32,6 +32,7 @@ describe('parseCertNumber', () => {
     expect(parseCertNumber('000000001')).toEqual({
       sequenceValue: 1,
       isPrototype: false,
+      isTest: false,
     });
   });
 
@@ -39,6 +40,20 @@ describe('parseCertNumber', () => {
     expect(parseCertNumber('P000000042')).toEqual({
       sequenceValue: 42,
       isPrototype: true,
+      isTest: false,
+    });
+  });
+
+  it('parses test cert numbers', () => {
+    expect(parseCertNumber('T000000007')).toEqual({
+      sequenceValue: 7,
+      isPrototype: false,
+      isTest: true,
+    });
+    expect(parseCertNumber('TP000000003')).toEqual({
+      sequenceValue: 3,
+      isPrototype: true,
+      isTest: true,
     });
   });
 
@@ -47,11 +62,24 @@ describe('parseCertNumber', () => {
     expect(parseCertNumber('12345678')).toBeNull(); // 8 digits
     expect(parseCertNumber('1234567890')).toBeNull(); // 10 digits
     expect(parseCertNumber('p000000001')).toBeNull(); // lowercase p
+    expect(parseCertNumber('t000000001')).toBeNull(); // lowercase t
     expect(parseCertNumber('PP00000001')).toBeNull();
+    expect(parseCertNumber('TT00000001')).toBeNull();
+    expect(parseCertNumber('PT00000001')).toBeNull(); // wrong prefix order
     expect(parseCertNumber('00000000a')).toBeNull();
     expect(parseCertNumber(' 000000001')).toBeNull();
     expect(parseCertNumber('000000000')).toBeNull(); // sequence starts at 1
     expect(parseCertNumber('P000000000')).toBeNull();
+    expect(parseCertNumber('T000000000')).toBeNull();
+  });
+});
+
+describe('formatCertNumber test prefixes', () => {
+  it('formats test and test-prototype numbers', () => {
+    expect(formatCertNumber(1, false, true)).toBe('T000000001');
+    expect(formatCertNumber(3, true, true)).toBe('TP000000003');
+    expect(formatCertNumber(1, false, false)).toBe('000000001');
+    expect(formatCertNumber(1, true)).toBe('P000000001'); // isTest defaults false
   });
 });
 
@@ -68,6 +96,8 @@ describe('CERT_NUMBER_REGEX', () => {
   it('matches full strings only', () => {
     expect(CERT_NUMBER_REGEX.test('000000001')).toBe(true);
     expect(CERT_NUMBER_REGEX.test('P000000001')).toBe(true);
+    expect(CERT_NUMBER_REGEX.test('T000000001')).toBe(true);
+    expect(CERT_NUMBER_REGEX.test('TP000000001')).toBe(true);
     expect(CERT_NUMBER_REGEX.test('x000000001x')).toBe(false);
   });
 });

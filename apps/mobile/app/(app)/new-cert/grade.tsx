@@ -3,6 +3,7 @@ import { Redirect, router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useGradeNames } from '../../../src/api/queries';
+import { useMode } from '../../../src/mode/mode-context';
 import { GradePicker } from '../../../src/components/GradePicker';
 import { LabelPreview } from '../../../src/components/LabelPreview';
 import { theme } from '../../../src/theme';
@@ -11,6 +12,7 @@ import { theme } from '../../../src/theme';
 export default function NewCertGrade() {
   const params = useLocalSearchParams<{ card: string }>();
   const gradeNames = useGradeNames();
+  const { isTestMode } = useMode();
   const [selected, setSelected] = useState<string | null>(null);
 
   let card: CardDetailDto | null = null;
@@ -38,6 +40,7 @@ export default function NewCertGrade() {
         grade={selected}
         gradeName={selectedName}
         isPrototype={false}
+        isTest={isTestMode}
         variants={card.variants}
       />
       <GradePicker

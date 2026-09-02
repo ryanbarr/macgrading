@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import { useGradeNames, useMintCert } from '../../../src/api/queries';
+import { useMode } from '../../../src/mode/mode-context';
 import { CardImageViewer } from '../../../src/components/CardImageViewer';
 import { LabelPreview } from '../../../src/components/LabelPreview';
 import { theme } from '../../../src/theme';
@@ -31,6 +32,7 @@ export default function ConfirmMint() {
   const params = useLocalSearchParams<{ card: string; grade: string }>();
   const [isPrototype, setIsPrototype] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
+  const { isTestMode } = useMode();
   const gradeNames = useGradeNames();
   const mint = useMintCert();
 
@@ -52,8 +54,8 @@ export default function ConfirmMint() {
 
   const confirm = () => {
     Alert.alert(
-      'Mint certification?',
-      `This permanently assigns the next ${isPrototype ? 'prototype ' : ''}number to “${card.cardName}” at grade ${grade}${gradeName ? ` — ${gradeName}` : ''}. This cannot be undone.`,
+      isTestMode ? 'Mint TEST certification?' : 'Mint certification?',
+      `This permanently assigns the next ${isTestMode ? 'test ' : ''}${isPrototype ? 'prototype ' : ''}number to “${card.cardName}” at grade ${grade}${gradeName ? ` — ${gradeName}` : ''}. This cannot be undone.`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -64,6 +66,7 @@ export default function ConfirmMint() {
               {
                 cardboardTensId: card.cardboardTensId,
                 isPrototype,
+                isTest: isTestMode,
                 grade,
               },
               {
@@ -125,6 +128,7 @@ export default function ConfirmMint() {
         grade={grade}
         gradeName={gradeName}
         isPrototype={isPrototype}
+        isTest={isTestMode}
         variants={card.variants}
       />
 
