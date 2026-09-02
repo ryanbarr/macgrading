@@ -100,7 +100,7 @@ present to authenticate and confirm each write.
      |---|---|
      | `DATABASE_URL` | reference to the Postgres service's connection string (Railway "variable reference", not a literal — pick it from the Postgres service in the Railway UI/MCP) |
      | `NODE_ENV` | `production` |
-     | `CORS_ORIGIN` | `https://macgrading.com` |
+     | `CORS_ORIGIN` | `https://macgrading.com,https://www.macgrading.com` (comma-separated — `main.ts` splits on `,`; both are live custom domains on `web`, so both must be allowed or the `www` origin fails CORS on admin sign-in/cert lookup/presign) |
      | `THROTTLE_TTL_SECONDS` | `60` |
      | `THROTTLE_LIMIT` | `100` |
      | `JWT_SECRET` | `<jwt-secret>` from step 1.7 |
@@ -198,6 +198,14 @@ on GitHub (push or PR) — confirm on the repo's Actions tab before enabling.
 
 Run these after both services show a healthy deploy in Railway and DNS has
 propagated (Section 3).
+
+Note on `CORS_ORIGIN`: it lists both `https://macgrading.com` and
+`https://www.macgrading.com` because both are live custom domains on `web`
+(Section 3) and a browser call from whichever origin the operator lands on
+must pass CORS. A `www`→apex redirect configured at Cloudflare (once the
+zone has moved there) is a fine later alternative to visiting `www`
+directly — at that point `CORS_ORIGIN` can shrink back to the single apex
+origin.
 
 1. **API health:**
 
