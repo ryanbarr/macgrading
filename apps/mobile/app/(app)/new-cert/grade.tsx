@@ -1,4 +1,4 @@
-import type { CardSummary } from '@macgrading/shared';
+import type { CardDetailDto } from '@macgrading/shared';
 import { Redirect, router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -13,9 +13,9 @@ export default function NewCertGrade() {
   const gradeNames = useGradeNames();
   const [selected, setSelected] = useState<string | null>(null);
 
-  let card: CardSummary | null = null;
+  let card: CardDetailDto | null = null;
   try {
-    card = params.card ? (JSON.parse(params.card) as CardSummary) : null;
+    card = params.card ? (JSON.parse(params.card) as CardDetailDto) : null;
   } catch {
     card = null;
   }
@@ -38,6 +38,7 @@ export default function NewCertGrade() {
         grade={selected}
         gradeName={selectedName}
         isPrototype={false}
+        variants={card.variants}
       />
       <GradePicker
         value={selected}

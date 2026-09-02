@@ -1,4 +1,4 @@
-import type { CardSummary } from '@macgrading/shared';
+import type { CardDetailDto } from '@macgrading/shared';
 import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -17,9 +17,9 @@ export default function CardSearch() {
   const [q, setQ] = useState('');
   const search = useCardSearch(q);
 
-  const select = (card: CardSummary) => {
+  const select = (card: CardDetailDto) => {
     router.push({
-      pathname: '/new-cert/grade',
+      pathname: '/new-cert/card',
       params: { card: JSON.stringify(card) },
     });
   };
@@ -58,6 +58,9 @@ export default function CardSearch() {
                 {item.cardNumber ? ` · ${item.cardNumber}` : ''}
                 {item.releaseYear ? ` · ${item.releaseYear}` : ''}
               </Text>
+              {item.variants.length > 0 && (
+                <Text style={styles.variants}>{item.variants.join(' · ')}</Text>
+              )}
             </View>
           </Pressable>
         )}
@@ -105,5 +108,6 @@ const styles = StyleSheet.create({
   },
   name: { fontSize: 16, fontWeight: '600', color: theme.colors.text },
   meta: { fontSize: 13, color: theme.colors.subtle },
+  variants: { fontSize: 12, color: theme.colors.accent, fontWeight: '600' },
   empty: { textAlign: 'center', color: theme.colors.subtle, marginTop: theme.spacing(8) },
 });

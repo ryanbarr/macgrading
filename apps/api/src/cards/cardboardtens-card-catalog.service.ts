@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CardSummary } from '@macgrading/shared';
+import { CardDetailDto } from '@macgrading/shared';
 import { CardCatalogService } from './card-catalog.service';
 
 interface CardboardTensSet {
@@ -60,7 +60,7 @@ export class CardboardTensCardCatalogService extends CardCatalogService {
     ).replace(/\/$/, '');
   }
 
-  async search(query: string): Promise<CardSummary[]> {
+  async search(query: string): Promise<CardDetailDto[]> {
     const params = new URLSearchParams({
       q: query,
       limit: String(SEARCH_LIMIT),
@@ -68,15 +68,15 @@ export class CardboardTensCardCatalogService extends CardCatalogService {
     const body = await this.request<CardboardTensSearchResponse>(
       `/cards?${params.toString()}`,
     );
-    return body.cards.map((card) => this.toCardSummary(card));
+    return body.cards.map((card) => this.toCardDetail(card));
   }
 
-  async getById(cardboardTensId: string): Promise<CardSummary | null> {
+  async getById(cardboardTensId: string): Promise<CardDetailDto | null> {
     const body = await this.request<CardboardTensCard | null>(
       `/cards/${encodeURIComponent(cardboardTensId)}`,
       { nullOn404: true },
     );
-    return body ? this.toCardSummary(body) : null;
+    return body ? this.toCardDetail(body) : null;
   }
 
   private async request<T>(
@@ -118,7 +118,7 @@ export class CardboardTensCardCatalogService extends CardCatalogService {
     return (await response.json()) as T;
   }
 
-  private toCardSummary(card: CardboardTensCard): CardSummary {
+  private toCardDetail(card: CardboardTensCard): CardDetailDto {
     const releaseYear = Number(card.set.releaseDate?.slice(0, 4));
     return {
       cardboardTensId: card.id,
@@ -130,6 +130,20 @@ export class CardboardTensCardCatalogService extends CardCatalogService {
       category: 'Pokémon',
       cardImageUrl: card.images.large ?? card.images.small,
       cardThumbUrl: card.images.small ?? card.images.large,
+      variants: card.variants,
+      rarity: card.rarity,
+      supertype: card.supertype,
+      subtypes: card.subtypes,
+      types: card.types,
+      artist: card.artist,
+      hp: card.hp,
+      languageCode: card.languageCode,
+      nationalPokedexNumbers: card.nationalPokedexNumbers,
+      setSeries: card.set.series || null,
+      setTotal: card.set.total > 0 ? card.set.total : null,
+      setReleaseDate: card.set.releaseDate || null,
+      originalName: card.name !== card.nameEn ? card.name : null,
+      originalSetName: card.set.name !== card.set.nameEn ? card.set.name : null,
     };
   }
 }

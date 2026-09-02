@@ -8,10 +8,19 @@ interface Props {
   grade: string | null;
   gradeName: string | null;
   isPrototype: boolean;
+  /** Variant labels (e.g. "Holofoil · 1st Edition") shown under the set line. */
+  variants?: string[];
 }
 
 /** Wireframe rendering of the physical MAC label. */
-export function LabelPreview({ card, certNumber, grade, gradeName, isPrototype }: Props) {
+export function LabelPreview({
+  card,
+  certNumber,
+  grade,
+  gradeName,
+  isPrototype,
+  variants,
+}: Props) {
   return (
     <View style={styles.label}>
       <View style={styles.top}>
@@ -24,6 +33,9 @@ export function LabelPreview({ card, certNumber, grade, gradeName, isPrototype }
         {card.cardNumber ? ` · ${card.cardNumber}` : ''}
         {card.releaseYear ? ` · ${card.releaseYear}` : ''}
       </Text>
+      {variants && variants.length > 0 && (
+        <Text style={styles.meta}>{variants.join(' · ')}</Text>
+      )}
       {card.category && <Text style={styles.meta}>{card.category}</Text>}
       <View style={styles.bottom}>
         <Text style={styles.cert}>{certNumber ?? ''}</Text>

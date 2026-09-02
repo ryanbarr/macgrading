@@ -1,5 +1,5 @@
 import type {
-  CardSummary,
+  CardDetailDto,
   CertDto,
   CertListDto,
   GradeNameDto,
@@ -33,7 +33,7 @@ export function useCardSearch(q: string) {
   return useQuery({
     queryKey: ['cards', q],
     queryFn: () =>
-      apiFetch<CardSummary[]>(`/cards/search?q=${encodeURIComponent(q)}`, { token }),
+      apiFetch<CardDetailDto[]>(`/cards/search?q=${encodeURIComponent(q)}`, { token }),
     enabled: q.trim().length >= 2,
   });
 }

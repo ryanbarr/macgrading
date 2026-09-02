@@ -1,4 +1,4 @@
-import type { CardSummary } from '@macgrading/shared';
+import type { CardDetailDto } from '@macgrading/shared';
 import { Redirect, router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -32,9 +32,9 @@ export default function ConfirmMint() {
   const gradeNames = useGradeNames();
   const mint = useMintCert();
 
-  let card: CardSummary | null = null;
+  let card: CardDetailDto | null = null;
   try {
-    card = params.card ? (JSON.parse(params.card) as CardSummary) : null;
+    card = params.card ? (JSON.parse(params.card) as CardDetailDto) : null;
   } catch {
     card = null;
   }
@@ -103,6 +103,11 @@ export default function ConfirmMint() {
             label="Year"
             value={card.releaseYear ? String(card.releaseYear) : null}
           />
+          <DetailRow
+            label="Variants"
+            value={card.variants.length > 0 ? card.variants.join(' · ') : null}
+          />
+          <DetailRow label="Rarity" value={card.rarity} />
           <DetailRow label="Category" value={card.category} />
         </View>
       </View>
@@ -114,6 +119,7 @@ export default function ConfirmMint() {
         grade={grade}
         gradeName={gradeName}
         isPrototype={isPrototype}
+        variants={card.variants}
       />
 
       <Pressable

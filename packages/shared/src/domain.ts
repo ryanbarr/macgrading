@@ -20,6 +20,29 @@ export interface CardSummary {
   cardThumbUrl?: string | null;
 }
 
+/**
+ * Full card detail as returned by the catalog — a superset of the mint
+ * snapshot. Everything CardboardTens provides, for the pre-mint detail view.
+ */
+export interface CardDetailDto extends CardSummary {
+  variants: string[];
+  rarity: string | null;
+  supertype: string | null;
+  subtypes: string[];
+  types: string[];
+  artist: string | null;
+  hp: string | null;
+  languageCode: string | null;
+  nationalPokedexNumbers: number[];
+  setSeries: string | null;
+  setTotal: number | null;
+  setReleaseDate: string | null;
+  /** Original (non-English) card name when it differs from cardName. */
+  originalName: string | null;
+  /** Original (non-English) set name when it differs from setName. */
+  originalSetName: string | null;
+}
+
 export interface CertPhotoDto {
   id: string;
   url: string;

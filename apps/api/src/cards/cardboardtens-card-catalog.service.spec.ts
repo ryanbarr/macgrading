@@ -92,6 +92,20 @@ describe('CardboardTensCardCatalogService', () => {
         category: 'Pokémon',
         cardImageUrl: 'https://img/large.png',
         cardThumbUrl: 'https://img/small.png',
+        variants: ['Holofoil'],
+        rarity: 'Rare Holo',
+        supertype: 'Pokémon',
+        subtypes: ['Stage 2'],
+        types: ['Fire'],
+        artist: 'Mitsuhiro Arita',
+        hp: '120',
+        languageCode: 'EN',
+        nationalPokedexNumbers: [6],
+        setSeries: 'Base',
+        setTotal: 102,
+        setReleaseDate: '1999-01-09',
+        originalName: null,
+        originalSetName: null,
       },
     ]);
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
@@ -117,6 +131,10 @@ describe('CardboardTensCardCatalogService', () => {
     expect(result.releaseYear).toBe(2023);
     expect(result.cardImageUrl).toBe('https://img/ja-small.png'); // large null → small
     expect(result.cardThumbUrl).toBe('https://img/ja-small.png'); // small preferred for thumbs
+    expect(result.originalName).toBe('セグレイブ'); // differs from English name
+    expect(result.originalSetName).toBe('スノーハザード');
+    expect(result.setTotal).toBeNull(); // 0 → null
+    expect(result.setSeries).toBe('Scarlet & Violet');
   });
 
   it('getById returns null on 404', async () => {

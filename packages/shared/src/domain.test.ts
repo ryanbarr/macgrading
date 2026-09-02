@@ -1,11 +1,44 @@
 import { describe, expect, it } from 'vitest';
 import { CERT_STATUSES, CERT_COUNTER_TYPES, ROLES } from './domain';
 import type {
+  CardDetailDto,
   CardSummary,
   CertDto,
   CertListDto,
   LoginResponseDto,
 } from './domain';
+
+describe('CardDetailDto', () => {
+  it('is a superset of CardSummary', () => {
+    const detail: CardDetailDto = {
+      cardboardTensId: 'base1-4',
+      cardName: 'Charizard',
+      setName: 'Base',
+      cardNumber: '4/102',
+      releaseYear: 1999,
+      category: 'Pokémon',
+      cardImageUrl: 'https://img/large.png',
+      cardThumbUrl: 'https://img/small.png',
+      variants: ['Holofoil', '1st Edition'],
+      rarity: 'Rare Holo',
+      supertype: 'Pokémon',
+      subtypes: ['Stage 2'],
+      types: ['Fire'],
+      artist: 'Mitsuhiro Arita',
+      hp: '120',
+      languageCode: 'EN',
+      nationalPokedexNumbers: [6],
+      setSeries: 'Base',
+      setTotal: 102,
+      setReleaseDate: '1999-01-09',
+      originalName: null,
+      originalSetName: null,
+    };
+    const summary: CardSummary = detail; // assignability is the contract
+    expect(summary.cardName).toBe('Charizard');
+    expect(detail.variants).toContain('Holofoil');
+  });
+});
 
 describe('CardSummary', () => {
   it('accepts an optional thumbnail url', () => {
