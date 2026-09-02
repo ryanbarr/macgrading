@@ -91,6 +91,7 @@ describe('CardboardTensCardCatalogService', () => {
         releaseYear: 1999,
         category: 'Pokémon',
         cardImageUrl: 'https://img/large.png',
+        cardThumbUrl: 'https://img/small.png',
       },
     ]);
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
@@ -115,6 +116,7 @@ describe('CardboardTensCardCatalogService', () => {
     expect(result.cardNumber).toBe('27'); // set.total 0 → bare number
     expect(result.releaseYear).toBe(2023);
     expect(result.cardImageUrl).toBe('https://img/ja-small.png'); // large null → small
+    expect(result.cardThumbUrl).toBe('https://img/ja-small.png'); // small preferred for thumbs
   });
 
   it('getById returns null on 404', async () => {

@@ -3,6 +3,7 @@ import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 import {
   FlatList,
+  Image,
   Pressable,
   StyleSheet,
   Text,
@@ -40,12 +41,24 @@ export default function CardSearch() {
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
           <Pressable style={styles.row} onPress={() => select(item)}>
-            <Text style={styles.name}>{item.cardName}</Text>
-            <Text style={styles.meta}>
-              {item.setName}
-              {item.cardNumber ? ` · ${item.cardNumber}` : ''}
-              {item.releaseYear ? ` · ${item.releaseYear}` : ''}
-            </Text>
+            {item.cardThumbUrl ? (
+              <Image
+                source={{ uri: item.cardThumbUrl }}
+                style={styles.thumb}
+                resizeMode="cover"
+                accessibilityLabel={`Card image for ${item.cardName}`}
+              />
+            ) : (
+              <View style={[styles.thumb, styles.thumbPlaceholder]} />
+            )}
+            <View style={styles.rowText}>
+              <Text style={styles.name}>{item.cardName}</Text>
+              <Text style={styles.meta}>
+                {item.setName}
+                {item.cardNumber ? ` · ${item.cardNumber}` : ''}
+                {item.releaseYear ? ` · ${item.releaseYear}` : ''}
+              </Text>
+            </View>
           </Pressable>
         )}
         ListEmptyComponent={
@@ -79,6 +92,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     padding: theme.spacing(3),
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing(3),
+  },
+  rowText: { flex: 1 },
+  thumb: { width: 46, height: 64, borderRadius: 4 },
+  thumbPlaceholder: {
+    backgroundColor: theme.colors.bg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
   },
   name: { fontSize: 16, fontWeight: '600', color: theme.colors.text },
   meta: { fontSize: 13, color: theme.colors.subtle },

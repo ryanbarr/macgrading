@@ -1,6 +1,29 @@
 import { describe, expect, it } from 'vitest';
 import { CERT_STATUSES, CERT_COUNTER_TYPES, ROLES } from './domain';
-import type { CertDto, CertListDto, LoginResponseDto } from './domain';
+import type {
+  CardSummary,
+  CertDto,
+  CertListDto,
+  LoginResponseDto,
+} from './domain';
+
+describe('CardSummary', () => {
+  it('accepts an optional thumbnail url', () => {
+    const withThumb: CardSummary = {
+      cardboardTensId: 'base1-4',
+      cardName: 'Charizard',
+      setName: 'Base',
+      cardNumber: '4/102',
+      releaseYear: 1999,
+      category: 'Pokémon',
+      cardImageUrl: 'https://img/large.png',
+      cardThumbUrl: 'https://img/small.png',
+    };
+    const withoutThumb: CardSummary = { ...withThumb, cardThumbUrl: undefined };
+    expect(withThumb.cardThumbUrl).toBe('https://img/small.png');
+    expect(withoutThumb.cardThumbUrl).toBeUndefined();
+  });
+});
 
 describe('domain constants', () => {
   it('enumerates the spec values', () => {

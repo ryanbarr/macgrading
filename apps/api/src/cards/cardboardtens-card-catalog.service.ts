@@ -129,6 +129,7 @@ export class CardboardTensCardCatalogService extends CardCatalogService {
       releaseYear: Number.isFinite(releaseYear) ? releaseYear : null,
       category: 'Pokémon',
       cardImageUrl: card.images.large ?? card.images.small,
+      cardThumbUrl: card.images.small ?? card.images.large,
     };
   }
 }

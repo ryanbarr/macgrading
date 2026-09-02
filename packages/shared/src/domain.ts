@@ -7,7 +7,7 @@ export type CertStatus = (typeof CERT_STATUSES)[number];
 export const CERT_COUNTER_TYPES = ['STANDARD', 'PROTOTYPE'] as const;
 export type CertCounterType = (typeof CERT_COUNTER_TYPES)[number];
 
-/** A card as returned by the card catalog (CardboardTens stub for now). */
+/** A card as returned by the card catalog (live CardboardTens API or stub). */
 export interface CardSummary {
   cardboardTensId: string;
   cardName: string;
@@ -16,6 +16,8 @@ export interface CardSummary {
   releaseYear: number | null;
   category: string | null;
   cardImageUrl: string | null;
+  /** Small image suited to list thumbnails; optional display-only hint. */
+  cardThumbUrl?: string | null;
 }
 
 export interface CertPhotoDto {
