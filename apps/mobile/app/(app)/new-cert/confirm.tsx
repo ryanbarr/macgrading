@@ -70,11 +70,20 @@ export default function ConfirmMint() {
                 grade,
               },
               {
-                onSuccess: (cert) =>
+                onSuccess: (cert) => {
+                  if (cert.isTest !== isTestMode) {
+                    // Mode mismatch means the API ignored our flag (version
+                    // skew). The cert exists either way — say so loudly.
+                    Alert.alert(
+                      'Mode mismatch!',
+                      `The API minted ${cert.certNumber} as a ${cert.isTest ? 'TEST' : 'LIVE'} cert, but the app is in ${isTestMode ? 'Test' : 'Live'} Mode. The API may be running outdated code — restart it and report this number.`,
+                    );
+                  }
                   router.replace({
                     pathname: '/new-cert/created',
                     params: { certNumber: cert.certNumber },
-                  }),
+                  });
+                },
                 onError: (error) => Alert.alert('Mint failed', error.message),
               },
             );

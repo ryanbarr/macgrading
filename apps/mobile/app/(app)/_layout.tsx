@@ -18,7 +18,7 @@ function ModeBanner() {
       ]}
     >
       <Text style={isTestMode ? styles.bannerTestText : styles.bannerLiveText}>
-        {isTestMode ? 'TEST MODE — certs mint on the T sequence' : 'Live'}
+        {isTestMode ? 'TEST MODE' : 'LIVE MODE'}
       </Text>
     </View>
   );

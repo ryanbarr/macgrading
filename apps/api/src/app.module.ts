@@ -35,7 +35,14 @@ import { CertsModule } from './certs/certs.module';
   providers: [
     {
       provide: APP_PIPE,
-      useValue: new ValidationPipe({ whitelist: true, transform: true }),
+      // forbidNonWhitelisted: silently stripping unknown fields once turned a
+      // TEST-mode mint into a live cert (stale server + new client). Unknown
+      // properties must fail loudly, not vanish.
+      useValue: new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
     },
     { provide: APP_FILTER, useClass: HttpExceptionFilter },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
