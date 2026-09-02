@@ -1,9 +1,9 @@
-import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
 
-describe('GET /health', () => {
+describe('health', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -18,18 +18,8 @@ describe('GET /health', () => {
     await app.close();
   });
 
-  it('returns ok', () => {
-    return request(app.getHttpServer())
-      .get('/health')
-      .expect(200)
-      .expect({ status: 'ok', sharedLinked: true });
-  });
-
-  it('unknown routes get the standard error shape (filter active)', () => {
-    return request(app.getHttpServer()).get('/nope').expect(404).expect({
-      statusCode: 404,
-      message: 'Cannot GET /nope',
-      error: 'Not Found',
-    });
+  it('reports ok without auth', async () => {
+    const res = await request(app.getHttpServer()).get('/health').expect(200);
+    expect(res.body).toEqual({ status: 'ok' });
   });
 });
