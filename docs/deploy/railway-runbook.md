@@ -86,11 +86,11 @@ present to authenticate and confirm each write.
    - Root directory: `/` (repo root)
    - Dockerfile path: `apps/api/Dockerfile`
    - Build context: repo root (so `packages/shared` resolves)
-   - Pre-deploy command: `pnpm exec prisma migrate deploy`, working
-     directory `apps/api`. If the Railway service config has no separate
-     "working directory" field for the pre-deploy command, use
-     `cd apps/api && pnpm exec prisma migrate deploy` instead — both are
-     path-safe regardless of the container's `WORKDIR` at boot.
+   - Pre-deploy command: `pnpm exec prisma migrate deploy` works as-is because
+     the image's `WORKDIR` is already `/app/apps/api`. If the Railway service
+     config has no separate "working directory" field for the pre-deploy
+     command, use `cd /app/apps/api && pnpm exec prisma migrate deploy`
+     as the belt-and-suspenders fallback.
    - Healthcheck path: `/health` (expects HTTP 200,
      `{"status":"ok"}`)
    - Watch paths: `apps/api/**`, `packages/shared/**`
@@ -271,7 +271,7 @@ origin.
      -d '{"contentType": "image/jpeg"}'
    ```
 
-   Expect a `200` with JSON `{"uploadUrl": "...", "objectKey": "..."}`
+   Expect a `201` with JSON `{"uploadUrl": "...", "objectKey": "..."}`
    where `uploadUrl` starts with
    `https://<r2-account-id>.r2.cloudflarestorage.com/macgrading-photos/`.
    That confirms the API is presigning against R2 correctly end to end.
