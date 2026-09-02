@@ -26,9 +26,13 @@ export class CertsService {
   ) {}
 
   publicUrlBase(): string {
-    const base =
-      this.config.get<string>('S3_PUBLIC_URL') ??
-      this.config.getOrThrow<string>('S3_ENDPOINT');
+    // R2's public URLs (pub-….r2.dev or a custom domain) map straight to the
+    // bucket root, so the override is used verbatim — no bucket segment.
+    const publicBase = this.config.get<string>('S3_PUBLIC_BASE_URL');
+    if (publicBase) {
+      return publicBase.replace(/\/$/, '');
+    }
+    const base = this.config.getOrThrow<string>('S3_ENDPOINT');
     const bucket = this.config.getOrThrow<string>('S3_BUCKET');
     return `${base.replace(/\/$/, '')}/${bucket}`;
   }

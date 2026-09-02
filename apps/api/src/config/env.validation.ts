@@ -15,7 +15,7 @@ export class EnvironmentVariables {
   @IsString() @IsNotEmpty() S3_SECRET_KEY!: string;
   @IsString() @IsNotEmpty() S3_BUCKET!: string;
   @IsString() @IsNotEmpty() S3_REGION!: string;
-  @IsOptional() @IsString() S3_PUBLIC_URL?: string;
+  @IsOptional() @IsString() S3_PUBLIC_BASE_URL?: string;
   @IsOptional() @IsString() ADMIN_EMAILS?: string;
   @IsOptional() @IsString() AUTH_DEV_MODE?: string;
   @IsOptional() @IsString() CORS_ORIGIN?: string;
