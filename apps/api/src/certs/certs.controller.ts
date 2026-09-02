@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -9,6 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { User } from '@prisma/client';
+import { defineAbilityFor } from '@macgrading/shared';
 import { CheckPolicies } from '../auth/check-policies.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -26,6 +28,14 @@ export class CertsController {
   @UseGuards(JwtAuthGuard, PoliciesGuard)
   @CheckPolicies((ability) => ability.can('create', 'Cert'))
   mint(@Body() dto: CreateCertDto, @CurrentUser() user: User) {
+    // Mint-with-grade also grades: require the grade ability the PATCH
+    // route demands, so the two gates can never drift apart.
+    if (
+      dto.grade !== undefined &&
+      !defineAbilityFor(user).can('grade', 'Cert')
+    ) {
+      throw new ForbiddenException('Insufficient permissions to grade');
+    }
     return this.certs.mint(dto, user.id);
   }
 
