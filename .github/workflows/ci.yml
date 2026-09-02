@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: macgrading
+          POSTGRES_PASSWORD: macgrading
+          POSTGRES_DB: macgrading
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U macgrading"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start MinIO
+        run: |
+          docker run -d --name minio -p 9000:9000 \
+            -e MINIO_ROOT_USER=macgrading -e MINIO_ROOT_PASSWORD=macgrading \
+            minio/minio:RELEASE.2025-09-07T16-13-09Z server /data
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Enable pnpm via corepack
+        run: corepack enable
+      - name: Get pnpm store path
+        id: pnpm-store
+        run: echo "path=$(pnpm store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-${{ runner.os }}-
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm build
+      - name: Unit tests
+        run: pnpm test
+      - name: Typecheck web
+        run: pnpm --filter @macgrading/web typecheck
+      - name: Typecheck mobile
+        run: pnpm --filter @macgrading/mobile exec tsc --noEmit
+      - name: Create MinIO bucket
+        run: |
+          docker run --rm --network host \
+            --entrypoint sh minio/mc:RELEASE.2025-08-13T08-35-41Z -c \
+            "mc alias set local http://localhost:9000 macgrading macgrading \
+             && mc mb --ignore-existing local/slab-photos \
+             && mc anonymous set download local/slab-photos"
+      - name: API e2e
+        # env is step-scoped: NODE_ENV=test must not leak into next build
+        # or the unit-test steps above
+        env:
+          DATABASE_URL: postgresql://macgrading:macgrading@localhost:5432/macgrading
+          JWT_SECRET: ci-secret
+          GOOGLE_CLIENT_ID: ci-client-id
+          AUTH_DEV_MODE: 'true'
+          NODE_ENV: test
+          S3_ENDPOINT: http://localhost:9000
+          S3_ACCESS_KEY: macgrading
+          S3_SECRET_KEY: macgrading
+          S3_BUCKET: slab-photos
+          S3_REGION: us-east-1
+        run: pnpm --filter @macgrading/api test:e2e
