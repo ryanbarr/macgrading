@@ -20,9 +20,9 @@ export default function Created() {
       </Pressable>
       <Pressable
         style={styles.button}
-        onPress={() => router.replace(`/cert/${certNumber}/grade`)}
+        onPress={() => router.replace(`/cert/${certNumber}`)}
       >
-        <Text style={styles.buttonText}>Enter the grade</Text>
+        <Text style={styles.buttonText}>View cert & add photos</Text>
       </Pressable>
     </View>
   );

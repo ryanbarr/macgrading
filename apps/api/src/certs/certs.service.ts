@@ -32,7 +32,7 @@ export class CertsService {
     return `${base.replace(/\/$/, '')}/${bucket}`;
   }
 
-  async mint(input: CreateCertDto): Promise<CertDto> {
+  async mint(input: CreateCertDto, userId: string): Promise<CertDto> {
     const card = await this.catalog.getById(input.cardboardTensId);
     if (!card) {
       throw new NotFoundException(`Unknown card: ${input.cardboardTensId}`);
@@ -59,6 +59,24 @@ export class CertsService {
         where: { type: counterType },
         data: { nextValue: sequenceValue + 1 },
       });
+
+      // Late-minting flow: when the grade is known up front, freeze it in the
+      // same transaction so a cert is never observable half-minted.
+      let gradeFields: Prisma.CertCreateInput | object = {};
+      if (input.grade !== undefined) {
+        const gradeValue = new Prisma.Decimal(input.grade);
+        const gradeName = await tx.gradeName.findUnique({
+          where: { gradeValue },
+        });
+        gradeFields = {
+          status: 'GRADED' as const,
+          grade: gradeValue,
+          gradeName: gradeName?.name ?? null,
+          gradedBy: { connect: { id: userId } },
+          gradedAt: new Date(),
+        };
+      }
+
       return tx.cert.create({
         data: {
           certNumber,
@@ -70,6 +88,7 @@ export class CertsService {
           releaseYear: card.releaseYear,
           category: card.category,
           cardImageUrl: card.cardImageUrl,
+          ...gradeFields,
         },
         include: { photos: true },
       });

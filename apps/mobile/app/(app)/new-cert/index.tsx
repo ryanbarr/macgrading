@@ -19,7 +19,7 @@ export default function CardSearch() {
 
   const select = (card: CardSummary) => {
     router.push({
-      pathname: '/new-cert/preview',
+      pathname: '/new-cert/grade',
       params: { card: JSON.stringify(card) },
     });
   };

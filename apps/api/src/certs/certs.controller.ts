@@ -25,8 +25,8 @@ export class CertsController {
   @Post()
   @UseGuards(JwtAuthGuard, PoliciesGuard)
   @CheckPolicies((ability) => ability.can('create', 'Cert'))
-  mint(@Body() dto: CreateCertDto) {
-    return this.certs.mint(dto);
+  mint(@Body() dto: CreateCertDto, @CurrentUser() user: User) {
+    return this.certs.mint(dto, user.id);
   }
 
   @Patch(':certNumber/grade')

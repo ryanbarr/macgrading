@@ -86,6 +86,53 @@ describe('cert minting', () => {
     expect(second.body.certNumber).toBe('000000002');
   });
 
+  it('mints directly to GRADED when a grade is supplied (atomic)', async () => {
+    const res = await mint({
+      cardboardTensId: 'cbt-0001',
+      isPrototype: false,
+      grade: '10',
+    }).expect(201);
+    expect(res.body).toMatchObject({
+      certNumber: '000000001',
+      status: 'GRADED',
+      grade: '10',
+      gradeName: 'Mac Daddy',
+    });
+    expect(res.body.gradedAt).toEqual(expect.any(String));
+
+    const cert = await prisma.cert.findUniqueOrThrow({
+      where: { certNumber: '000000001' },
+    });
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { email: 'team@macgrading.com' },
+    });
+    expect(cert.gradedById).toBe(user.id);
+  });
+
+  it('mint-with-grade freezes null when the grade has no configured name', async () => {
+    const res = await mint({
+      cardboardTensId: 'cbt-0002',
+      isPrototype: false,
+      grade: '7',
+    }).expect(201);
+    expect(res.body.status).toBe('GRADED');
+    expect(res.body.grade).toBe('7');
+    expect(res.body.gradeName).toBeNull();
+  });
+
+  it('rejects invalid grades at mint time without consuming a number', async () => {
+    await mint({
+      cardboardTensId: 'cbt-0001',
+      isPrototype: false,
+      grade: '10.5',
+    }).expect(400);
+    const next = await mint({
+      cardboardTensId: 'cbt-0001',
+      isPrototype: false,
+    }).expect(201);
+    expect(next.body.certNumber).toBe('000000001');
+  });
+
   it('prototype numbers run on their own sequence', async () => {
     await mint({ cardboardTensId: 'cbt-0001', isPrototype: false }).expect(201);
     const proto = await mint({

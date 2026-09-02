@@ -50,8 +50,11 @@ export function useMintCert() {
   const { token } = useAuth();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: { cardboardTensId: string; isPrototype: boolean }) =>
-      apiFetch<CertDto>('/certs', { method: 'POST', body: input, token }),
+    mutationFn: (input: {
+      cardboardTensId: string;
+      isPrototype: boolean;
+      grade?: string;
+    }) => apiFetch<CertDto>('/certs', { method: 'POST', body: input, token }),
     onSuccess: (cert) => {
       queryClient.invalidateQueries({ queryKey: ['certs'] });
       queryClient.setQueryData(certKeys.detail(cert.certNumber), cert);

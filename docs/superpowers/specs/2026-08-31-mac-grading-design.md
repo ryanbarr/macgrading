@@ -104,10 +104,12 @@ Key rules:
   `SELECT … FOR UPDATE` on the counter row, increments, and inserts the cert in
   one transaction — no gaps on rollback, which matters for a visibly sequential
   scheme.
-- **Lifecycle:** cert is created `PENDING_GRADE` when the number is minted
-  (label printing happens off this record), flips to `GRADED` when the grade is
-  confirmed. Photos attach at any time after; a cert with zero photos is valid
-  and public.
+- **Lifecycle (revised 2026-09-02 — late minting):** the normal flow mints the
+  cert directly to `GRADED` — card and grade are both confirmed first, then the
+  number, grade, and frozen grade name are written in one transaction. A cert
+  is never observable half-minted. Grade-less minting (`PENDING_GRADE`, then
+  `PATCH /grade`) remains supported for flexibility and legacy certs. Photos
+  attach at any time after; a cert with zero photos is valid and public.
 
 ## API surface
 
@@ -127,8 +129,10 @@ GET    /auth/me                            current user + role
 GET    /cards/search?q=                    CardCatalogService (stub) results
 GET    /grade-names                        configured grade names
 
-POST   /certs                              { cardboardTensId, isPrototype } →
-                                           snapshot + mint in one transaction
+POST   /certs                              { cardboardTensId, isPrototype, grade? } →
+                                           snapshot + mint in one transaction;
+                                           with grade: mints straight to GRADED
+                                           (grade + name frozen atomically)
 PATCH  /certs/:certNumber/grade            { grade } → freeze grade+name, GRADED
 POST   /certs/:certNumber/photos/presign   { contentType } → presigned PUT + objectKey
 POST   /certs/:certNumber/photos           { objectKey, sortOrder } → register photo
@@ -169,26 +173,29 @@ Expo Router, TanStack Query, expo-secure-store, native Google sign-in (works in
 free local dev builds).
 
 ```
-Sign In → Home (cert list) → New Cert:
+Sign In → Home (cert list) → New Cert (revised 2026-09-02 — late minting):
                               1. Card Search
-                              2. Label Preview  ── confirm ──▶ mints cert number
-                              3. Cert Created   (big number display)
-                              4. Grade Entry    ── confirm ──▶ GRADED
+                              2. Grade Entry    (pre-mint; nothing permanent yet)
+                              3. Final Check    ── card + label confirm ──▶ MINT (GRADED)
+                              4. Cert Created   (big number display)
                               5. Cert Detail    (photo upload)
 ```
 
 - **Home** — recent certs with status chips and search; the re-entry point for
   attaching photos after the slab is sealed on the separate label device.
-- **Card Search** — queries the stub via `/cards/search`.
-- **Label Preview** — digital mock of the MAC label from snapshot data, with
-  the **Prototype checkbox**. Last chance to catch wrong details before a
-  permanent number is minted.
-- **Cert Created** — freshly minted number, huge and copyable (entered into the
-  label-printer device).
+- **Card Search** — queries the card catalog via `/cards/search` (thumbnails).
 - **Grade Entry** — numeric picker (whole numbers now, decimal-ready) showing
-  the configured grade name live from `/grade-names`.
+  the configured grade name live from `/grade-names`. Happens BEFORE minting.
+- **Final Check** — the point of no return, showing BOTH the card (thumbnail +
+  detail rows) and the label (rendered mock including the grade), with the
+  **Prototype checkbox** and an irreversible-mint confirm dialog. Only after
+  this does `POST /certs { …, grade }` mint — number + grade in one atomic
+  transaction. Abandoning the flow before this point leaves nothing behind.
+- **Cert Created** — freshly minted number, huge and copyable (entered into the
+  label-printer device); continues to Cert Detail for photos.
 - **Cert Detail** — full record + photo section: camera/library → presign →
-  direct upload → register; per-photo upload state; delete/retake.
+  direct upload → register; per-photo upload state; delete/retake. Also hosts
+  the legacy post-mint grade entry for any remaining `PENDING_GRADE` certs.
 
 Each screen boundary is an API state transition, so killing the app mid-flow
 loses nothing — any cert resumes from Home at whatever state it reached.
