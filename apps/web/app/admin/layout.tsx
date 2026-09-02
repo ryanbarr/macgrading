@@ -9,11 +9,12 @@ import {
   getAdminToken,
   setAdminToken,
 } from '@/lib/admin-api';
+import { GoogleSignInButton } from '@/components/GoogleSignInButton';
 
 /**
  * Auth gate for the internal admin section: dev email sign-in (requires the
- * API's AUTH_DEV_MODE locally) — the Google button activates once real
- * client IDs are configured. ADMIN role required past the gate.
+ * API's AUTH_DEV_MODE locally) — the Google button activates via
+ * NEXT_PUBLIC_GOOGLE_CLIENT_ID. ADMIN role required past the gate.
  */
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUserDto | null>(null);
@@ -41,19 +42,23 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     void loadMe();
   }, [loadMe]);
 
-  const signIn = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const signInWithToken = async (idToken: string) => {
     setError(null);
     try {
       const result = await adminFetch<LoginResponseDto>('/auth/google', {
         method: 'POST',
-        body: { idToken: email.trim() },
+        body: { idToken },
       });
       setAdminToken(result.accessToken);
       setUser(result.user);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign-in failed');
     }
+  };
+
+  const signIn = async (event: React.FormEvent) => {
+    event.preventDefault();
+    await signInWithToken(email.trim());
   };
 
   const signOut = () => {
@@ -69,32 +74,31 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     return (
       <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-4 px-6">
         <h1 className="text-2xl font-bold text-neutral-900">MAC Grading Admin</h1>
-        <form onSubmit={signIn} className="flex flex-col gap-3">
-          <input
-            className="rounded-lg border border-neutral-300 bg-white px-3 py-2"
-            placeholder="you@macgrading.com"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            aria-label="Email for dev sign-in"
-          />
-          <button
-            type="submit"
-            className="rounded-lg bg-neutral-700 px-4 py-2 font-semibold text-white hover:bg-neutral-800"
-          >
-            Dev sign-in
-          </button>
-        </form>
-        <button
-          disabled
-          className="rounded-lg border border-neutral-300 px-4 py-2 text-neutral-400"
-          title="Activates when Google client IDs are configured"
-        >
-          Sign in with Google (not configured)
-        </button>
+        <GoogleSignInButton onCredential={(idToken) => void signInWithToken(idToken)} />
+        {!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
+          <>
+            <form onSubmit={signIn} className="flex flex-col gap-3">
+              <input
+                className="rounded-lg border border-neutral-300 bg-white px-3 py-2"
+                placeholder="you@macgrading.com"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                aria-label="Email for dev sign-in"
+              />
+              <button
+                type="submit"
+                className="rounded-lg bg-neutral-700 px-4 py-2 font-semibold text-white hover:bg-neutral-800"
+              >
+                Dev sign-in
+              </button>
+            </form>
+            <p className="text-xs text-neutral-400">
+              Dev sign-in requires AUTH_DEV_MODE on the API. Set
+              NEXT_PUBLIC_GOOGLE_CLIENT_ID to use Google sign-in.
+            </p>
+          </>
+        )}
         {error && <p className="text-sm text-red-700">{error}</p>}
-        <p className="text-xs text-neutral-400">
-          Dev sign-in requires AUTH_DEV_MODE on the API.
-        </p>
       </main>
     );
   }
