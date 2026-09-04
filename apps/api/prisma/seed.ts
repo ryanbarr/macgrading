@@ -21,9 +21,11 @@ async function main() {
     { gradeValue: '10', name: 'Mac Daddy' },
   ];
   for (const { gradeValue, name } of gradeNames) {
+    // create-only: the seed runs on every deploy, and admin renames must
+    // not be reverted by it
     await prisma.gradeName.upsert({
       where: { gradeValue: new Prisma.Decimal(gradeValue) },
-      update: { name },
+      update: {},
       create: { gradeValue: new Prisma.Decimal(gradeValue), name },
     });
   }
