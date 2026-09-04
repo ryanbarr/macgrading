@@ -14,3 +14,4 @@ Nest.js API for MAC Grading — public cert lookup + team operations.
 Reads `DATABASE_URL` from `apps/api/.env` (copy from repo root `.env.example`).
 
 # Railway pre-deploy runs deploy:release (migrate + idempotent seed); see docs/deploy/railway-runbook.md
+# Deploys: pre-deploy runs in the previously-live image — keep pre-deploy commands to scripts that exist there.
