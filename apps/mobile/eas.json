@@ -1,0 +1,27 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://localhost:3001",
+        "EXPO_PUBLIC_DEV_AUTH": "true"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.macgrading.com",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "446482258227-dnc6cue3oiaf5drggqaomd3jcptefnvq.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "446482258227-a5ssmh1kead2nnlkn423ap13uto3d90r.apps.googleusercontent.com"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

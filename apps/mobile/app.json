@@ -34,7 +34,12 @@
           "imageWidth": 76
         }
       ],
-      "@react-native-google-signin/google-signin",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.446482258227-a5ssmh1kead2nnlkn423ap13uto3d90r"
+        }
+      ],
       [
         "expo-image-picker",
         {

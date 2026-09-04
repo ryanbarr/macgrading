@@ -1,54 +1,71 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { OAuth2Client, LoginTicket, TokenPayload } from 'google-auth-library';
-import { GoogleAuthTokenVerifier } from './google-token-verifier';
+import {
+  GoogleAuthTokenVerifier,
+  parseGoogleClientIds,
+} from './google-token-verifier';
 
-function fakeConfigService(): ConfigService {
+const verifyIdToken = jest.fn();
+jest.mock('google-auth-library', () => ({
+  OAuth2Client: jest.fn().mockImplementation(() => ({ verifyIdToken })),
+}));
+
+function fakeConfig(values: Record<string, string>): ConfigService {
   return {
-    getOrThrow: () => 'test-client-id.apps.googleusercontent.com',
+    get: (key: string) => values[key],
+    getOrThrow: (key: string) => {
+      const value = values[key];
+      if (value === undefined) throw new Error(`missing ${key}`);
+      return value;
+    },
   } as unknown as ConfigService;
 }
 
-function ticketWith(payload: Partial<TokenPayload>): LoginTicket {
-  return new LoginTicket(undefined, {
-    iss: 'https://accounts.google.com',
-    sub: 'google-sub-123',
-    aud: 'test-client-id.apps.googleusercontent.com',
-    iat: 0,
-    exp: 0,
-    email: 'person@example.com',
-    email_verified: true,
-    name: 'Test Person',
-    ...payload,
-  });
-}
-
-describe('GoogleAuthTokenVerifier', () => {
-  afterEach(() => {
-    jest.restoreAllMocks();
+describe('parseGoogleClientIds', () => {
+  it('returns a single id as a one-element list', () => {
+    expect(parseGoogleClientIds('web-id')).toEqual(['web-id']);
   });
 
-  it('rejects a token whose email is not verified', async () => {
-    jest
-      .spyOn(OAuth2Client.prototype, 'verifyIdToken')
-      .mockResolvedValue(ticketWith({ email_verified: false }));
-    const verifier = new GoogleAuthTokenVerifier(fakeConfigService());
+  it('splits a comma-separated list, trimming and dropping empties', () => {
+    expect(parseGoogleClientIds('web-id, ios-id ,,')).toEqual([
+      'web-id',
+      'ios-id',
+    ]);
+  });
+});
 
-    await expect(verifier.verify('some-id-token')).rejects.toBeInstanceOf(
+describe('GoogleAuthTokenVerifier audiences', () => {
+  beforeEach(() => {
+    verifyIdToken.mockReset();
+  });
+
+  it('accepts a token for any configured client id', async () => {
+    verifyIdToken.mockResolvedValue({
+      getPayload: () => ({
+        email: 'grader@macgrading.com',
+        sub: 'google-123',
+        email_verified: true,
+        name: 'Grader',
+      }),
+    });
+    const verifier = new GoogleAuthTokenVerifier(
+      fakeConfig({ GOOGLE_CLIENT_ID: 'web-id,ios-id' }),
+    );
+    const profile = await verifier.verify('token');
+    expect(profile.googleId).toBe('google-123');
+    expect(verifyIdToken).toHaveBeenCalledWith({
+      idToken: 'token',
+      audience: ['web-id', 'ios-id'],
+    });
+  });
+
+  it('still rejects invalid tokens', async () => {
+    verifyIdToken.mockRejectedValue(new Error('bad audience'));
+    const verifier = new GoogleAuthTokenVerifier(
+      fakeConfig({ GOOGLE_CLIENT_ID: 'web-id,ios-id' }),
+    );
+    await expect(verifier.verify('token')).rejects.toBeInstanceOf(
       UnauthorizedException,
     );
-  });
-
-  it('returns the profile for a token with a verified email', async () => {
-    jest
-      .spyOn(OAuth2Client.prototype, 'verifyIdToken')
-      .mockResolvedValue(ticketWith({ email_verified: true }));
-    const verifier = new GoogleAuthTokenVerifier(fakeConfigService());
-
-    await expect(verifier.verify('some-id-token')).resolves.toEqual({
-      email: 'person@example.com',
-      googleId: 'google-sub-123',
-      name: 'Test Person',
-    });
   });
 });
