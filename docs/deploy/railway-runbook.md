@@ -131,6 +131,7 @@ present to authenticate and confirm each write.
      | `NEXT_PUBLIC_API_URL` | `https://api.macgrading.com` |
      | `NEXT_PUBLIC_SITE_URL` | `https://macgrading.com` |
      | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | `<google-oauth-client-id>` from step 1.6 (same client ID as `GOOGLE_CLIENT_ID` on `api`) |
+     | `API_URL` | `http://api.railway.internal:3001` — **required**: server-side rendering reads this (not `NEXT_PUBLIC_API_URL`) and defaults to localhost without it; the `railway.internal` address keeps SSR traffic on the private network |
 
 6. Trigger the first deploy for both services once GitHub is connected (or
    let it run automatically on the next push to `main` — see Section 4
