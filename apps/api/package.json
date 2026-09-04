@@ -22,11 +22,12 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
-    "postinstall": "prisma generate"
-  },
-  "prisma": {
+    "postinstall": "prisma generate",
     "seed": "ts-node prisma/seed.ts",
     "deploy:release": "prisma migrate deploy && ts-node prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1122.0",
