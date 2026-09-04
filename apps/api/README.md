@@ -12,3 +12,5 @@ Nest.js API for MAC Grading — public cert lookup + team operations.
     pnpm db:seed      # idempotent seed (cert counters + grade names)
 
 Reads `DATABASE_URL` from `apps/api/.env` (copy from repo root `.env.example`).
+
+# Railway pre-deploy runs deploy:release (migrate + idempotent seed); see docs/deploy/railway-runbook.md
