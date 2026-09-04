@@ -59,6 +59,23 @@ describe('GoogleAuthTokenVerifier audiences', () => {
     });
   });
 
+  it('rejects a token whose email is not verified', async () => {
+    verifyIdToken.mockResolvedValue({
+      getPayload: () => ({
+        email: 'person@example.com',
+        sub: 'google-sub-123',
+        email_verified: false,
+        name: 'Test Person',
+      }),
+    });
+    const verifier = new GoogleAuthTokenVerifier(
+      fakeConfig({ GOOGLE_CLIENT_ID: 'web-id' }),
+    );
+    await expect(verifier.verify('token')).rejects.toBeInstanceOf(
+      UnauthorizedException,
+    );
+  });
+
   it('still rejects invalid tokens', async () => {
     verifyIdToken.mockRejectedValue(new Error('bad audience'));
     const verifier = new GoogleAuthTokenVerifier(
