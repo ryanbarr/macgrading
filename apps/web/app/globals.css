@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafafa;
-  --foreground: #171717;
+  --background: #eef0f6;
+  --foreground: #111114;
 }
 
 @theme inline {
@@ -12,8 +12,25 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Brand palette: light surfaces, bright accents used as tile fills. */
+@theme {
+  --color-ink: #111114;
+  --color-muted: #71717a;
+  --color-line: #e7e7ec;
+  --color-tile: #f4f4f7;
+  --color-lime: #c5f06b;
+  --color-teal: #d8f7f1;
+  --color-pink: #ff3d8b;
+  --color-coral: #ff5a36;
+  --color-lavender: #e2e5ff;
+}
+
+@utility bg-grade {
+  background-image: linear-gradient(135deg, #ffb36b 0%, #ff7aa8 55%, #b9a8ff 100%);
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
 }

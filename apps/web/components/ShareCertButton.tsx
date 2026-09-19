@@ -32,8 +32,18 @@ export function ShareCertButton({
   return (
     <button
       onClick={() => void share()}
-      className="rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 hover:border-neutral-500"
+      className="flex h-13 w-full items-center justify-center gap-2 rounded-full bg-ink px-6 text-[15px] font-bold text-white transition hover:bg-neutral-800"
     >
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        className="h-[18px] w-[18px]"
+      >
+        <path d="M12 3v12M7 8l5-5 5 5M5 14v6h14v-6" />
+      </svg>
       {copied ? 'Link copied!' : 'Share this cert'}
     </button>
   );
