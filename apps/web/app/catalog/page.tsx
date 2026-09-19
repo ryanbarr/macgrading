@@ -102,7 +102,7 @@ export default async function CatalogPage({ searchParams }: Props) {
           Nothing here yet{q ? ` for "${q}"` : ''}.
         </p>
       ) : (
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid grid-cols-2 gap-2.5 lg:grid-cols-3">
           {list.items.map((cert) => (
             <CertCard key={cert.certNumber} cert={cert} />
           ))}

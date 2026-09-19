@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import QRCode from 'qrcode';
 import { isValidCertNumber } from '@macgrading/shared';
 import { ShareCertButton } from '@/components/ShareCertButton';
+import { SiteNav } from '@/components/SiteNav';
 import { getCert } from '@/lib/api';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
@@ -70,22 +70,7 @@ export default async function CertPage({ params }: Props) {
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-5 md:px-8 md:py-10">
       <div className="rounded-[36px] bg-white p-[18px] shadow-[0_20px_40px_-24px_rgba(17,17,20,0.25)] md:p-8">
-        <nav className="flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-[15px] font-black tracking-tight text-ink">
-            <span className="h-[18px] w-[18px] rounded-md bg-grade" />
-            MAC Grading
-          </Link>
-          <Link
-            href="/"
-            aria-label="Look up another cert"
-            className="grid h-[38px] w-[38px] place-items-center rounded-full border border-line text-ink hover:bg-tile"
-          >
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-[17px] w-[17px]">
-              <circle cx="11" cy="11" r="7" />
-              <path d="m20 20-3.5-3.5" />
-            </svg>
-          </Link>
-        </nav>
+        <SiteNav />
 
         {cert.voidedAt && (
           <div className="mt-4 rounded-3xl border border-red-200 bg-red-50 p-4 text-center text-red-700">
