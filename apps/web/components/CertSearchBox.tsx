@@ -10,7 +10,7 @@ export function CertSearchBox({ autoFocus = false }: { autoFocus?: boolean }) {
 
   return (
     <form
-      className="flex w-full max-w-xl gap-2"
+      className="flex w-full max-w-xl items-center gap-1.5 rounded-full border border-line bg-white p-1.5 shadow-[0_10px_24px_-18px_rgba(17,17,20,0.5)] focus-within:border-ink"
       action="/catalog"
       method="get"
       onSubmit={(event) => {
@@ -19,8 +19,8 @@ export function CertSearchBox({ autoFocus = false }: { autoFocus?: boolean }) {
       }}
     >
       <input
-        className="flex-1 rounded-lg border border-neutral-300 bg-white px-4 py-3 text-lg text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-500 focus:outline-none"
-        placeholder="Enter a cert number or card name…"
+        className="min-w-0 flex-1 bg-transparent px-3.5 py-2.5 text-[15px] text-ink placeholder:text-sm placeholder:text-muted focus:outline-none"
+        placeholder="Cert # or card name"
         name="q"
         value={value}
         onChange={(event) => setValue(event.target.value)}
@@ -29,7 +29,7 @@ export function CertSearchBox({ autoFocus = false }: { autoFocus?: boolean }) {
       />
       <button
         type="submit"
-        className="rounded-lg bg-neutral-700 px-6 py-3 text-lg font-semibold text-white hover:bg-neutral-800"
+        className="flex-none rounded-full bg-ink px-4 py-2.5 text-[15px] font-bold text-white transition hover:bg-neutral-800"
       >
         Look up
       </button>
